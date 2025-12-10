@@ -74,7 +74,7 @@ public class BowlingGameDirector : MonoBehaviour
         carRb.isKinematic = false; // 物理演算をオンにする（車が動き出す/重力が効く）
 
         // ※もし「スペースキーでドカンと飛ばす」なら、ここでAddForceしてください
-        // carRb.AddForce(Vector3.forward * 1000f, ForceMode.Impulse);
+        //carRb.AddForce(Vector3.forward * 10000f, ForceMode.Impulse);
 
         // ※もし「車の操作スクリプト」があるなら、ここで enabled = true にしてください
     }

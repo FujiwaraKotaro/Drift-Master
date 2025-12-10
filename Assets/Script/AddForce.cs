@@ -16,7 +16,7 @@ public class AddForce : MonoBehaviour
     void FixedUpdate()
     {
 
-        m_Rigidbody.AddForce(transform.forward * m_Thrust);
+        m_Rigidbody.AddForce(Vector3.forward * m_Thrust, ForceMode.Acceleration);
 
     }
 }
