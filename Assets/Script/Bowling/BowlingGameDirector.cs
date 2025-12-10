@@ -3,39 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// ゲーム全体の進行管理クラス (旧 GameManager)
-// 車、スコア管理、ピン管理を統括する「監督」の役割
+// ゲーム全体の進行管理クラス
+// Managerに状況判断を委譲し、返ってきた指示に従ってピンや車を操作する
 public class BowlingGameDirector : MonoBehaviour
 {
     [Header("Manager References")]
-    [SerializeField] private BowlingScoreManager scoreManager; // スコア計算担当
-    [SerializeField] private BowlingPinManager pinManager;     // ピン管理担当
+    [SerializeField] private BowlingScoreManager scoreManager;
+    [SerializeField] private BowlingPinManager pinManager;
 
     [Header("Game Objects")]
-    [SerializeField] private Transform car;       // プレイヤーの車
-    [SerializeField] private Rigidbody carRb;     // 車の物理ボディ
+    [SerializeField] private Transform car;
+    [SerializeField] private Rigidbody carRb;
 
     [Header("Settings")]
-    [SerializeField] private float finishLineZ = 50f;     // 判定ライン
-    [SerializeField] private float waitTimeSeconds = 3f;  // 衝突後の待ち時間
+    [SerializeField] private float finishLineZ = 50f;
+    [SerializeField] private float waitTimeSeconds = 3f;
 
-    // 車の初期位置記憶用
     private Vector3 carStartPos;
     private Quaternion carStartRot;
-
-    private bool isJudging = false; // 判定中フラグ
+    private bool isJudging = false;
 
     void Start()
     {
-        // 車のスタート位置を覚えておく
         carStartPos = car.position;
         carStartRot = car.rotation;
     }
 
     void Update()
     {
-        // ゲーム終了時ならRキーで完全リセット（シーンリロード）
-        if (scoreManager.IsGameOver)
+        // ゲーム終了時リセット
+        var status = scoreManager.CheckGameStatus();
+        if (status.IsGameOver)
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
@@ -44,81 +42,58 @@ public class BowlingGameDirector : MonoBehaviour
             return;
         }
 
-        // 判定中でなく、車がラインを超えたら判定プロセス開始
+        // 判定ライン通過チェック
         if (!isJudging && car.position.z >= finishLineZ)
         {
             StartCoroutine(ProcessThrowResult());
         }
     }
 
-    // 投球結果の処理フロー
     private IEnumerator ProcessThrowResult()
     {
         isJudging = true;
 
-        // 1. ピンが倒れきるのを待つ
+        // 1. ピンが落ち着くのを待つ
         yield return new WaitForSeconds(waitTimeSeconds);
 
-        // 2. ピンマネージャーに倒れたピンを報告させる
+        // 2. 倒れたピンを集計して記録
         List<GameObject> fallenPins = pinManager.CheckFallenPins();
         int fallenCount = fallenPins.Count;
 
         Debug.Log($"倒れたピン: {fallenCount}本");
+        scoreManager.RecordThrow(fallenCount); // 記録＆UI更新
 
-        // 3. スコアマネージャーに点数を記録
-        scoreManager.RecordThrow(fallenCount);
+        // 3. Managerに「次どうすればいい？」と聞く (ここが重要)
+        var status = scoreManager.CheckGameStatus();
 
-        // 4. 次のターンの準備状況を確認（1投目か2投目か、ストライクかなど）
-        int previousFrame = scoreManager.CurrentFrame;
-        int previousThrow = scoreManager.CurrentThrow;
-
-        // スコアマネージャーの状態を進める
-        scoreManager.AdvanceTurn(fallenCount);
-
-        if (scoreManager.IsGameOver)
+        if (status.IsGameOver)
         {
-            Debug.Log("ゲーム終了！ Rキーでリトライ");
+            Debug.Log("Game Over! Press R to Restart.");
         }
         else
         {
-            // まだゲームが続く場合、次の投球のセットアップを行う
-            SetupNextThrow(fallenPins, fallenCount);
+            // 次の投球に向けたセットアップ
+            switch (status.NextAction)
+            {
+                case BowlingScoreManager.NextPinAction.ResetAll:
+                    pinManager.ResetAllPins();
+                    Debug.Log("Reset All Pins");
+                    break;
+
+                case BowlingScoreManager.NextPinAction.RemoveFallen:
+                    pinManager.RemovePins(fallenPins);
+                    pinManager.StabilizeStandingPins();
+                    Debug.Log("Remove Fallen Pins");
+                    break;
+            }
         }
 
-        // 5. 車をスタート地点に戻す
+        // 4. 車をリセット
         ResetCar();
 
         isJudging = false;
     }
 
-    // 次の投球のための配置セットアップ
-    private void SetupNextThrow(List<GameObject> fallenPins, int countLastThrow)
-    {
-        // ルール:
-        // 現在が「1投目」になるなら -> 新しいフレームなので全ピン復活
-        // 現在が「2投目」になるなら -> 倒れたピンだけ除去して、残りはそのまま
-
-        if (scoreManager.CurrentThrow == 1)
-        {
-            // 次が1投目ということは、フレームが変わった（あるいは前の投球でストライクだった）
-            // -> 全ピンをリセットして配置しなおす
-            pinManager.ResetAllPins();
-            Debug.Log("Next Frame: Reset All Pins");
-        }
-        else
-        {
-            // 次が2投目（または10フレーム目の3投目など）
-            // -> さっき倒れたピンを除去する
-            pinManager.RemovePins(fallenPins);
-
-            // 残っているピンの揺れを止める
-            pinManager.StabilizeStandingPins();
-
-            Debug.Log("Next Throw: Remove Fallen Pins Only");
-        }
-    }
-
-    // 車をリセットする処理
     private void ResetCar()
     {
         carRb.velocity = Vector3.zero;

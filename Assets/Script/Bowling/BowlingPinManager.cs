@@ -31,10 +31,7 @@ public class BowlingPinManager : MonoBehaviour
         // ゲーム開始時に全ピンの初期位置を記憶する
         foreach (var pin in pins)
         {
-            if (pin != null)
-            {
-                initialPinTransforms.Add(new PinTransform(pin));
-            }
+            initialPinTransforms.Add(new PinTransform(pin));
         }
     }
 
@@ -78,12 +75,10 @@ public class BowlingPinManager : MonoBehaviour
 
             // 物理挙動を完全に止めてから位置を戻す（重要）
             Rigidbody rb = p.GetComponent<Rigidbody>();
-            if (rb != null)
-            {
-                rb.velocity = Vector3.zero;
-                rb.angularVelocity = Vector3.zero;
-                rb.Sleep(); // 一旦スリープさせると安定する
-            }
+            rb.velocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            rb.Sleep(); // 一旦スリープさせると安定する
+
 
             p.transform.position = pinData.position;
             p.transform.rotation = pinData.rotation;

@@ -1,102 +1,133 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
-// ƒƒWƒbƒN’S“–FƒXƒRƒAŒvZ‚ÆƒQ[ƒ€isŠÇ—
-// UI‚Ö‚Ì’¼Ú‚ÌQÆ‚Í‚½‚¸AUIManager‚ÉXV‚ğˆË—Š‚·‚é
+// ãƒ­ã‚¸ãƒƒã‚¯æ‹…å½“ï¼šã‚¹ã‚³ã‚¢è¨ˆç®—ã¨ã‚²ãƒ¼ãƒ çŠ¶æ…‹ã®ç®¡ç†
+// ã€Œç¾åœ¨ä½•ãƒ•ãƒ¬ãƒ¼ãƒ ç›®ã‹ï¼Ÿã€ã€Œæ¬¡ã¯ãƒ”ãƒ³ã‚’ãƒªã‚»ãƒƒãƒˆã™ã¹ãã‹ï¼Ÿã€ã‚’ã™ã¹ã¦å±¥æ­´(rolls)ã‹ã‚‰éƒ½åº¦è¨ˆç®—ã™ã‚‹
 public class BowlingScoreManager : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private BowlingUIManager uiManager; // UI’S“–ƒXƒNƒŠƒvƒg
+    [SerializeField] private BowlingUIManager uiManager;
 
-    // “Š‹…‚²‚Æ‚Ì“|‚µ‚½–{”‚ğ‹L˜^‚·‚éƒŠƒXƒgiŠO•”‚©‚ç‚Ì“Ç‚İæ‚èê—pƒvƒƒpƒeƒB•t‚«j
+    // å”¯ä¸€ã®ã€Œæ­£è§£ã€ãƒ‡ãƒ¼ã‚¿ (Single Source of Truth)
     private List<int> rolls = new List<int>();
     public List<int> Rolls => rolls;
 
-    // Œ»İ‚ÌƒtƒŒ[ƒ€i1~10j
-    public int CurrentFrame { get; private set; } = 1;
+    // Directorã«ã€Œæ¬¡ã«ãƒ”ãƒ³ã‚’ã©ã†æ“ä½œã™ã¹ãã‹ã€ã‚’ä¼ãˆã‚‹ãŸã‚ã®åˆ—æŒ™å‹
+    public enum NextPinAction
+    {
+        None,           // ä½•ã‚‚ã—ãªã„ï¼ˆã‚²ãƒ¼ãƒ çµ‚äº†æ™‚ãªã©ï¼‰
+        ResetAll,       // å…¨ãƒ”ãƒ³ã‚’å¾©æ´»ã•ã›ã‚‹ï¼ˆãƒ•ãƒ¬ãƒ¼ãƒ é–‹å§‹æ™‚ã€ã‚¹ãƒˆãƒ©ã‚¤ã‚¯å¾Œãªã©ï¼‰
+        RemoveFallen    // å€’ã‚ŒãŸãƒ”ãƒ³ã ã‘é™¤ãï¼ˆ2æŠ•ç›®ã®å‰ãªã©ï¼‰
+    }
 
-    // Œ»İ‚Ì“Š‹…i1“Š–Ú or 2“Š–ÚA10ƒtƒŒ‚Í3“Š–Ú‚Ü‚Åj
-    public int CurrentThrow { get; private set; } = 1;
+    // ã‚²ãƒ¼ãƒ ã®çŠ¶æ…‹ã‚’è¿”ã™æ§‹é€ ä½“
+    public struct GameStatus
+    {
+        public bool IsGameOver;
+        public NextPinAction NextAction;
+    }
 
-    // ƒQ[ƒ€‚ªI—¹‚µ‚½‚©
-    public bool IsGameOver { get; private set; } = false;
-
-
-    // --- ŠO•”‚©‚ç‚Ì‘€ì ---
+    // --- å¤–éƒ¨ã‹ã‚‰ã®æ“ä½œ ---
 
     public void RecordThrow(int pinsDown)
     {
         rolls.Add(pinsDown);
-        RefreshUI();
+        uiManager.UpdateScoreBoard(this); // ãƒ‡ãƒ¼ã‚¿æ›´æ–°ã—ãŸã‚‰å³UIåæ˜ 
     }
 
-    public void AdvanceTurn(int pinsDown)
+    // --- è¨ˆç®—ãƒ­ã‚¸ãƒƒã‚¯ ---
+
+    // ç¾åœ¨ã®å±¥æ­´ã‹ã‚‰ã€Œã‚²ãƒ¼ãƒ ãŒçµ‚ã‚ã£ã¦ã„ã‚‹ã‹ã€ã€Œæ¬¡ã¯ã©ã†ã™ã¹ãã‹ã€ã‚’ç®—å‡ºã™ã‚‹
+    public GameStatus CheckGameStatus()
     {
-        if (IsGameOver) return;
+        int rollIndex = 0;
+        int frame = 1;
 
-        // --- 10ƒtƒŒ[ƒ€–Ú‚Ìˆ— ---
-        if (CurrentFrame == 10)
+        // 1ã€œ9ãƒ•ãƒ¬ãƒ¼ãƒ ã®ã‚·ãƒŸãƒ¥ãƒ¬ãƒ¼ã‚·ãƒ§ãƒ³
+        for (; frame < 10; frame++)
         {
-            if (CurrentThrow == 1)
+            if (rollIndex >= rolls.Count)
             {
-                CurrentThrow++;
+                // ãƒ‡ãƒ¼ã‚¿åˆ‡ã‚Œï¼ã“ã“ãŒã€Œä»Šã®ãƒ•ãƒ¬ãƒ¼ãƒ ã€ã®é–‹å§‹åœ°ç‚¹
+                // æ–°ã—ã„ãƒ•ãƒ¬ãƒ¼ãƒ ã®1æŠ•ç›®ãªã®ã§ã€ãƒ”ãƒ³ã¯å…¨ãƒªã‚»ãƒƒãƒˆ
+                return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
             }
-            else if (CurrentThrow == 2)
+
+            int first = rolls[rollIndex];
+
+            if (first == 10) // Strike
             {
-                int firstThrow = rolls[rolls.Count - 2];
-                int secondThrow = rolls[rolls.Count - 1];
-                if (firstThrow + secondThrow >= 10) CurrentThrow++;
-                else IsGameOver = true;
+                rollIndex++;
+                // æ¬¡ã®ãƒ‡ãƒ¼ã‚¿ãŒãªã‘ã‚Œã°ã€æ¬¡ã¯ã€Œæ–°ã—ã„ãƒ•ãƒ¬ãƒ¼ãƒ ã®1æŠ•ç›®ã€
+                if (rollIndex >= rolls.Count)
+                    return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
             }
-            else
+            else // Open or Spare
             {
-                IsGameOver = true;
-            }
-        }
-        // --- 1~9ƒtƒŒ[ƒ€–Ú‚Ìˆ— ---
-        else
-        {
-            if (CurrentThrow == 1)
-            {
-                if (pinsDown == 10) // Strike
-                {
-                    CurrentThrow = 1;
-                    CurrentFrame++;
-                }
-                else
-                {
-                    CurrentThrow++;
-                }
-            }
-            else
-            {
-                CurrentThrow = 1;
-                CurrentFrame++;
+                // 1æŠ•ç›®ã ã‘æŠ•ã’ãŸçŠ¶æ…‹ã‹ï¼Ÿ
+                if (rollIndex + 1 >= rolls.Count)
+                    return new GameStatus { IsGameOver = false, NextAction = NextPinAction.RemoveFallen };
+
+                rollIndex += 2; // 2æŠ•å®Œäº†
             }
         }
 
-        if (CurrentFrame > 10) IsGameOver = true;
+        // 10ãƒ•ãƒ¬ãƒ¼ãƒ ç›®ã®å‡¦ç†
+        if (frame == 10)
+        {
+            // ã¾ã 10ãƒ•ãƒ¬ã«åˆ°é”ã—ã¦ã„ãªã„ï¼ˆ9ãƒ•ãƒ¬ã¾ã§ã§ãƒ‡ãƒ¼ã‚¿ãŒçµ‚ã‚ã£ã¦ã„ã‚‹ï¼‰å ´åˆ
+            if (rollIndex >= rolls.Count)
+                return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
 
-        RefreshUI();
+            int throwsIn10th = rolls.Count - rollIndex;
+
+            // 1æŠ•ç›®ã‚’æŠ•ã’ãŸç›´å¾Œ
+            if (throwsIn10th == 1)
+            {
+                int first = rolls[rollIndex];
+                // ã‚¹ãƒˆãƒ©ã‚¤ã‚¯ãªã‚‰ãƒªã‚»ãƒƒãƒˆã€ãã‚Œä»¥å¤–ãªã‚‰é™¤å»
+                return new GameStatus
+                {
+                    IsGameOver = false,
+                    NextAction = (first == 10) ? NextPinAction.ResetAll : NextPinAction.RemoveFallen
+                };
+            }
+            // 2æŠ•ç›®ã‚’æŠ•ã’ãŸç›´å¾Œ
+            else if (throwsIn10th == 2)
+            {
+                int first = rolls[rollIndex];
+                int second = rolls[rollIndex + 1];
+
+                // çµ‚äº†åˆ¤å®š: ã‚ªãƒ¼ãƒ—ãƒ³ãƒ•ãƒ¬ãƒ¼ãƒ ãªã‚‰çµ‚äº†
+                if (first + second < 10 && first != 10)
+                    return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
+
+                // 3æŠ•ç›®ãŒã‚ã‚‹å ´åˆ
+                // ã‚¹ãƒšã‚¢ãªã‚‰ãƒªã‚»ãƒƒãƒˆ
+                if (first + second == 10)
+                    return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
+
+                // ã‚¹ãƒˆãƒ©ã‚¤ã‚¯â†’ã‚¹ãƒˆãƒ©ã‚¤ã‚¯ãªã‚‰ãƒªã‚»ãƒƒãƒˆ
+                if (first == 10 && second == 10)
+                    return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
+
+                // ã‚¹ãƒˆãƒ©ã‚¤ã‚¯â†’éã‚¹ãƒˆãƒ©ã‚¤ã‚¯ï¼ˆä¾‹: X, 5ï¼‰ãªã‚‰é™¤å»
+                return new GameStatus { IsGameOver = false, NextAction = NextPinAction.RemoveFallen };
+            }
+            // 3æŠ•ç›®ã‚’æŠ•ã’ãŸç›´å¾Œ
+            else if (throwsIn10th == 3)
+            {
+                return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
+            }
+        }
+
+        return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
     }
 
-    // --- ŒvZƒƒWƒbƒN ---
-
-    private void RefreshUI()
-    {
-        if (uiManager != null)
-        {
-            // ©•ª©giManagerj‚ğ“n‚µ‚ÄAUI‚É•`‰æ‚µ‚Ä‚à‚ç‚¤
-            uiManager.UpdateScoreBoard(this);
-        }
-    }
-
-    // ŠeƒtƒŒ[ƒ€‚²‚Æ‚Ì—İŒvƒXƒRƒA‚ğŒvZ‚µ‚Ä”z—ñ‚Å•Ô‚·
-    // ŒvZ‚Å‚«‚È‚¢i‚Ü‚¾“Š‚°‚Ä‚È‚¢jƒtƒŒ[ƒ€‚Í -1 ‚ğ“ü‚ê‚é
+    // UIç”¨ã®ã‚¹ã‚³ã‚¢è¨ˆç®—ï¼ˆæ—¢å­˜ãƒ­ã‚¸ãƒƒã‚¯ã‚’å¾®ä¿®æ­£ã—ã¦ç¶­æŒï¼‰
     public int[] GetCumulativeScores()
     {
         int[] frameScores = new int[10];
-        for (int i = 0; i < 10; i++) frameScores[i] = -1; // ‰Šú‰»
+        for (int i = 0; i < 10; i++) frameScores[i] = -1;
 
         int runningTotal = 0;
         int rollIndex = 0;
@@ -106,61 +137,59 @@ public class BowlingScoreManager : MonoBehaviour
             if (rollIndex >= rolls.Count) break;
 
             int currentFrameScore = -1;
-            int advance = 0; // ƒ‹[ƒv‚ğ‚Ç‚ê‚¾‚¯i‚ß‚é‚©
+            int advance = 0;
 
-            // 10ƒtƒŒ[ƒ€–Ú
-            if (f == 9)
+            if (f == 9) // 10ãƒ•ãƒ¬ãƒ¼ãƒ 
             {
                 int sum = 0;
                 int throws = 0;
-                for (int i = 0; i < 3; i++)
+                // æ®‹ã‚Šã®æŠ•çƒã‚’åˆè¨ˆ
+                for (int i = 0; rollIndex + i < rolls.Count && i < 3; i++)
                 {
-                    if (rollIndex + i < rolls.Count)
-                    {
-                        sum += rolls[rollIndex + i];
-                        throws++;
-                    }
+                    sum += rolls[rollIndex + i];
+                    throws++;
                 }
-                // I—¹ğŒ‚ğ–‚½‚µ‚Ä‚¢‚ê‚ÎƒXƒRƒAŠm’è
-                if (IsGameOver || (throws == 2 && sum < 10) || throws == 3)
-                {
-                    currentFrameScore = sum;
-                }
+
+                // çµ‚äº†æ¡ä»¶ã‚’æº€ãŸã—ãŸã‹ãƒã‚§ãƒƒã‚¯
+                bool isFrameFinished = false;
+                if (throws == 3) isFrameFinished = true;
+                else if (throws == 2 && sum < 10 && rolls[rollIndex] != 10) isFrameFinished = true; // ã‚ªãƒ¼ãƒ—ãƒ³
+
+                if (isFrameFinished) currentFrameScore = sum;
                 advance = throws;
             }
-            // ’ÊíƒtƒŒ[ƒ€ (Strike)
-            else if (rolls[rollIndex] == 10)
+            else // 1-9ãƒ•ãƒ¬ãƒ¼ãƒ 
             {
-                if (rollIndex + 2 < rolls.Count)
-                    currentFrameScore = 10 + rolls[rollIndex + 1] + rolls[rollIndex + 2];
-                advance = 1;
-            }
-            // ’ÊíƒtƒŒ[ƒ€ (Spare)
-            else if (rollIndex + 1 < rolls.Count && (rolls[rollIndex] + rolls[rollIndex + 1] == 10))
-            {
-                if (rollIndex + 2 < rolls.Count)
-                    currentFrameScore = 10 + rolls[rollIndex + 2];
-                advance = 2;
-            }
-            // ’ÊíƒtƒŒ[ƒ€ (Open)
-            else if (rollIndex + 1 < rolls.Count)
-            {
-                currentFrameScore = rolls[rollIndex] + rolls[rollIndex + 1];
-                advance = 2;
-            }
-            else
-            {
-                // “r’†
-                advance = 1;
+                if (rolls[rollIndex] == 10) // Strike
+                {
+                    if (rollIndex + 2 < rolls.Count)
+                        currentFrameScore = 10 + rolls[rollIndex + 1] + rolls[rollIndex + 2];
+                    advance = 1;
+                }
+                else if (rollIndex + 1 < rolls.Count) // Spare or Open
+                {
+                    if (rolls[rollIndex] + rolls[rollIndex + 1] == 10) // Spare
+                    {
+                        if (rollIndex + 2 < rolls.Count)
+                            currentFrameScore = 10 + rolls[rollIndex + 2];
+                    }
+                    else // Open
+                    {
+                        currentFrameScore = rolls[rollIndex] + rolls[rollIndex + 1];
+                    }
+                    advance = 2;
+                }
+                else
+                {
+                    advance = 1; // é€”ä¸­
+                }
             }
 
-            // ƒXƒRƒAŠm’è‚È‚ç‰ÁZ‚µ‚Ä‹L˜^
             if (currentFrameScore != -1)
             {
                 runningTotal += currentFrameScore;
                 frameScores[f] = runningTotal;
             }
-
             rollIndex += advance;
         }
 
