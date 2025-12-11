@@ -52,7 +52,7 @@ public class BowlingGameDirector : MonoBehaviour
         if (isReadyToThrow)
         {
             // スペースキーが押されたら発射
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Space) && GameStart.gameStarted)
             {
                 ShootCar();
             }
