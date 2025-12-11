@@ -21,7 +21,7 @@ public class CameraScript : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (player == null) return;
+        if (player == null　|| !GameStart.gameStarted) return;
 
         // --- 1. カメラの位置計算 (以前と同じ) ---
         float targetX = player.transform.position.x;
