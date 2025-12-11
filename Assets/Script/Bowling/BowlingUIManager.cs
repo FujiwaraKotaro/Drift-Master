@@ -2,91 +2,128 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
-// UI担当：データの表示のみを行う
-// Managerから計算済みのデータをもらってテキストを整形する
 public class BowlingUIManager : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private TMP_Text rollHistoryText; // 上段 (例: X  9 /)
-    [SerializeField] private TMP_Text totalScoreText;  // 下段 (例: 20 38)
+    // 上段：投球ごとのテキストリスト
+    // 要素数は21個である必要があります (Frame1-9: 2個ずつ, Frame10: 3個 = 18+3=21)
+    [SerializeField] private List<TMP_Text> rollBoxTexts;
 
-    // Managerから呼び出される更新処理
+    // 下段：各フレームの累積スコア (サイズ10)
+    [SerializeField] private List<TMP_Text> totalScoreTexts;
+
     public void UpdateScoreBoard(BowlingScoreManager scoreManager)
     {
         List<int> rolls = scoreManager.Rolls;
-        int[] frameScores = scoreManager.GetCumulativeScores(); // 計算済みのスコアを受け取る
+        int[] frameScores = scoreManager.GetCumulativeScores();
 
-        string historyStr = "";
-        string scoreStr = "";
-        int rollIndex = 0;
+        int rollIndex = 0; // データのインデックス
+        int boxIndex = 0;  // UIテキスト(Box)のインデックス
 
-        // 1～10フレームの表示用ループ
+        // 1～10フレームのループ
         for (int f = 1; f <= 10; f++)
         {
-            if (rollIndex >= rolls.Count)
-            {
-                // まだデータがない未来のフレームは空欄
-                historyStr += "     | ";
-                scoreStr += "     | ";
-                continue;
-            }
+            // --- 上段 (History / Box) の更新 ---
 
-            // --- 上段 (History) の文字列生成 ---
-            string frameHist = "";
-            int advance = 0;
-
-            if (f < 10) // 1~9フレーム
+            if (f < 10) // 1~9フレーム (Boxは2つ)
             {
-                int first = rolls[rollIndex];
-                if (first == 10) // Strike
+                // テキスト参照を取得 (範囲外チェック含む)
+                if (boxIndex + 1 >= rollBoxTexts.Count) break;
+                TMP_Text text1 = rollBoxTexts[boxIndex];
+                TMP_Text text2 = rollBoxTexts[boxIndex + 1];
+                boxIndex += 2; // 次のフレーム用に進める
+
+                // データがない場合
+                if (rollIndex >= rolls.Count)
                 {
-                    frameHist = " X   ";
-                    advance = 1;
+                    text1.text = "";
+                    text2.text = "";
                 }
                 else
                 {
-                    frameHist += first + " ";
-                    if (rollIndex + 1 < rolls.Count)
+                    int first = rolls[rollIndex];
+                    if (first == 10) // Strike
                     {
-                        int second = rolls[rollIndex + 1];
-                        if (first + second == 10) frameHist += "/";
-                        else frameHist += second;
-                        advance = 2;
+                        text1.text = "X";
+                        text2.text = ""; // ストライク時は2マス目を空ける
+                        rollIndex++;     // データは1つ消費
                     }
-                    else
+                    else // Open / Spare
                     {
-                        advance = 1; // 1投目だけ投げた状態
+                        text1.text = first.ToString();
+
+                        // 2投目があるか確認
+                        if (rollIndex + 1 < rolls.Count)
+                        {
+                            int second = rolls[rollIndex + 1];
+                            if (first + second == 10) text2.text = "/";
+                            else text2.text = second.ToString();
+
+                            rollIndex += 2; // データは2つ消費
+                        }
+                        else
+                        {
+                            // まだ投げていない
+                            text2.text = "";
+                            rollIndex++; // 1投目だけ消費
+                        }
                     }
                 }
             }
-            else // 10フレーム
+            else // 10フレーム (Boxは3つ)
             {
-                // 10フレは最大3回分を表示
-                // ここは簡易的に残りのrollをすべて表示する
-                int remaining = rolls.Count - rollIndex;
-                for (int i = 0; i < remaining && i < 3; i++)
+                // テキスト参照を取得
+                if (boxIndex + 2 >= rollBoxTexts.Count) break;
+                TMP_Text text1 = rollBoxTexts[boxIndex];
+                TMP_Text text2 = rollBoxTexts[boxIndex + 1];
+                TMP_Text text3 = rollBoxTexts[boxIndex + 2];
+                // boxIndex += 3; // (ループ最後なので不要だが概念として)
+
+                // 10フレのロジック: データがある分だけ前から埋めていく
+                // 残りのデータ数を確認
+                int remainingRolls = rolls.Count - rollIndex;
+
+                // 1つ目のBox
+                if (remainingRolls >= 1)
                 {
-                    int pin = rolls[rollIndex + i];
-                    if (pin == 10) frameHist += "X ";
-                    else if (i > 0 && rolls[rollIndex + i - 1] + pin == 10 && rolls[rollIndex + i - 1] != 10) frameHist += "/ ";
-                    else frameHist += pin + " ";
+                    int r1 = rolls[rollIndex];
+                    text1.text = (r1 == 10) ? "X" : r1.ToString();
                 }
-                advance = remaining;
+                else text1.text = "";
+
+                // 2つ目のBox
+                if (remainingRolls >= 2)
+                {
+                    int r1 = rolls[rollIndex];
+                    int r2 = rolls[rollIndex + 1];
+
+                    if (r2 == 10) text2.text = "X"; // 10フレはXXXありえる
+                    else if (r1 + r2 == 10 && r1 != 10) text2.text = "/"; // スペア判定
+                    else text2.text = r2.ToString();
+                }
+                else text2.text = "";
+
+                // 3つ目のBox
+                if (remainingRolls >= 3)
+                {
+                    int r2 = rolls[rollIndex + 1];
+                    int r3 = rolls[rollIndex + 2];
+
+                    if (r3 == 10) text3.text = "X";
+                    else if (r2 + r3 == 10 && r2 != 10) text3.text = "/";
+                    else text3.text = r3.ToString();
+                }
+                else text3.text = "";
+
+                // 10フレは表示用にループ回したので、rollIndex自体の更新は不要（ループ終了）
             }
 
-            // --- 下段 (Score) の文字列生成 ---
-            int score = frameScores[f - 1]; // 0始まりのインデックスなので-1
-            string frameScoreStr = (score != -1) ? score.ToString() : "";
-
-            // 文字列連結とパディング
-            historyStr += $"{frameHist.PadRight(5)}| ";
-            scoreStr += $"{frameScoreStr.PadRight(5)}| ";
-
-            rollIndex += advance;
+            // --- 下段 (Total Score) の更新 ---
+            if (f - 1 < totalScoreTexts.Count)
+            {
+                int score = frameScores[f - 1];
+                totalScoreTexts[f - 1].text = (score != -1) ? score.ToString() : "";
+            }
         }
-
-        // テキスト反映
-        if (rollHistoryText != null) rollHistoryText.text = historyStr;
-        if (totalScoreText != null) totalScoreText.text = scoreStr;
     }
 }
