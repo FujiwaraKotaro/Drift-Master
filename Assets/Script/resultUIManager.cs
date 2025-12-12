@@ -5,9 +5,9 @@ using DG.Tweening;
 
 public class resultUIManager: MonoBehaviour
 {
-    [SerializeField] private Vector2 centerPosition = Vector2.zero; // ‰æ–Ê’†‰›À•W
-    [SerializeField] private Vector2 enlargedSize = new Vector2(600, 400); // Šg‘åŒã‚ÌƒTƒCƒY
-    [SerializeField] private float duration = 2.0f; // ƒAƒjƒ[ƒVƒ‡ƒ“ŠÔ
+    [SerializeField] private Vector2 centerPosition = Vector2.zero; // ç”»é¢ä¸­å¤®åº§æ¨™
+    [SerializeField] private Vector2 enlargedSize = new Vector2(600, 400); // æ‹¡å¤§å¾Œã®ã‚µã‚¤ã‚º
+    [SerializeField] private float duration = 2.0f; // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æ™‚é–“
     [SerializeField] private GameObject scoreBoard;
     [SerializeField] private GameObject resultUI;
 
@@ -18,14 +18,13 @@ public class resultUIManager: MonoBehaviour
         rectTransform = scoreBoard.GetComponent<RectTransform>();
     }
 
-    // ƒQ[ƒ€ƒI[ƒo[‚ÉŒÄ‚Ño‚·
+    // ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼æ™‚ã«å‘¼ã³å‡ºã™
     public void ShowResultUI()
     {
-        // ˆÊ’u‚ğ’†‰›‚ÉˆÚ“®
+        // ä½ç½®ã‚’ä¸­å¤®ã«ç§»å‹•
         rectTransform.DOAnchorPos(centerPosition, duration).SetEase(Ease.OutCubic);
-        // ƒTƒCƒY‚ğ‘å‚«‚­
+        // ã‚µã‚¤ã‚ºã‚’å¤§ãã
         rectTransform.DOSizeDelta(enlargedSize, duration).SetEase(Ease.OutCubic);
         resultUI.SetActive(true);
-
     }
 }
