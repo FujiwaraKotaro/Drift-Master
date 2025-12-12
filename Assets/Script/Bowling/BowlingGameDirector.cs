@@ -43,6 +43,7 @@ public class BowlingGameDirector : MonoBehaviour
         {
             if (Input.GetKeyDown(KeyCode.R))
             {
+                GameStart.gameStarted = false;
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }
             return;
@@ -99,6 +100,7 @@ public class BowlingGameDirector : MonoBehaviour
         if (status.IsGameOver)
         {
             Debug.Log("Game Over! Press R to Restart.");
+            FindObjectOfType<resultUIManager>().ShowResultUI();
         }
         else
         {
