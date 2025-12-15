@@ -42396,7 +42396,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameDirector: {fileID: 1850333027}
   speedCheckInterval: 0.1
-  rapidDecelerationThreshold: 5
+  rapidDecelerationThreshold: 50
   minimumSpeed: 1
 --- !u!4 &6846881049046248199
 Transform:

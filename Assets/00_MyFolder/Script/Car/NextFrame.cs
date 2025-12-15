@@ -8,7 +8,7 @@ public class NextFrame : MonoBehaviour
 
     [Header("Speed Detection Settings")]
     [SerializeField] private float speedCheckInterval = 0.1f; // 速度をチェックする間隔（秒）
-    [SerializeField] private float rapidDecelerationThreshold = 5f; // 急激な減速とみなす閾値（m/s²）
+    [SerializeField] private float rapidDecelerationThreshold = 50f; // 急激な減速とみなす閾値（m/s²）
     [SerializeField] private float minimumSpeed = 1f; // 判定を開始する最低速度（m/s）
 
     private Rigidbody rb;
@@ -66,13 +66,6 @@ public class NextFrame : MonoBehaviour
                     // 監視開始
                     isSpeedMonitoring = true;
                 }
-            }
-            else if (isSpeedMonitoring && currentSpeed < minimumSpeed * 0.5f)
-            {
-                // 速度が非常に低くなった場合も判定
-                Debug.Log("速度が極低速になったため判定実行");
-                StartCoroutine(gameDirector.ProcessThrowResult());
-                isSpeedMonitoring = false;
             }
 
             previousVelocity = currentVelocity;
