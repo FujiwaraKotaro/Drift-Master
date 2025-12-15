@@ -19685,7 +19685,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0.15038373, y: -0.4924039, z: 0.08682408, w: 0.85286856}
-  m_LocalPosition: {x: 210, y: 157, z: -470}
+  m_LocalPosition: {x: 208.8, y: 160.8, z: -469.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -36203,7 +36203,7 @@ MonoBehaviour:
   pinManager: {fileID: 1850333026}
   car: {fileID: 6749569762806095543}
   carRb: {fileID: 3035555618305136825}
-  waitTimeSeconds: 3
+  waitTimeSeconds: 1
   isJudging: 0
 --- !u!114 &1850333028
 MonoBehaviour:
@@ -42395,6 +42395,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gameDirector: {fileID: 1850333027}
+  speedCheckInterval: 0.1
+  rapidDecelerationThreshold: 5
+  minimumSpeed: 1
 --- !u!4 &6846881049046248199
 Transform:
   m_ObjectHideFlags: 0
