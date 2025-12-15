@@ -5,7 +5,6 @@ using UnityEngine;
 public class AddForce : MonoBehaviour
 {
     Rigidbody m_Rigidbody;
-    [SerializeField] private Vector3 initialForceDirection = Vector3.forward; // 初速の方向
     [SerializeField] private float initialForceStrength = 30000f; // 質量1500に適した力
 
     private bool flag = false;
@@ -40,7 +39,7 @@ public class AddForce : MonoBehaviour
             other.gameObject.SetActive(false);
 
             // アイテム取得時も車の前方向に力を加える
-            m_Rigidbody.AddForce(initialForceDirection * initialForceStrength, ForceMode.Impulse);
+            m_Rigidbody.AddForce(transform.forward * initialForceStrength, ForceMode.Impulse);
         }
     }
 }
