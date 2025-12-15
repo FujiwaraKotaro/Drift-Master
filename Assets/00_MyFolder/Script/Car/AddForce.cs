@@ -36,7 +36,6 @@ public class AddForce : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Item"))
         {
-            other.gameObject.SetActive(false);
 
             // アイテム取得時も車の前方向に力を加える
             m_Rigidbody.AddForce(transform.forward * initialForceStrength, ForceMode.Impulse);

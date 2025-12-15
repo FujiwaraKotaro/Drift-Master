@@ -15,15 +15,13 @@ public class BowlingGameDirector : MonoBehaviour
     [SerializeField] private Transform car;
     [SerializeField] private Rigidbody carRb;
 
-    [Header("Settings")]
-    [SerializeField] private float finishLineZ = 50f;
     [SerializeField] private float waitTimeSeconds = 3f;
 
     private Vector3 carStartPos;
     private Quaternion carStartRot;
 
     // 状態管理用のフラグ
-    private bool isJudging = false;      // 判定中かどうか
+    public bool isJudging = false;      // 判定中かどうか
     private bool isReadyToThrow = false; // 発射待ちかどうか（追加）
 
     void Start()
@@ -61,11 +59,6 @@ public class BowlingGameDirector : MonoBehaviour
             return;
         }
 
-        // 判定ライン通過チェック
-        if (!isJudging && car.position.z >= finishLineZ)
-        {
-            StartCoroutine(ProcessThrowResult());
-        }
     }
 
     // 発射処理（追加）
@@ -80,7 +73,8 @@ public class BowlingGameDirector : MonoBehaviour
         // ※もし「車の操作スクリプト」があるなら、ここで enabled = true にしてください
     }
 
-    private IEnumerator ProcessThrowResult()
+
+    public IEnumerator ProcessThrowResult()
     {
         isJudging = true;
 

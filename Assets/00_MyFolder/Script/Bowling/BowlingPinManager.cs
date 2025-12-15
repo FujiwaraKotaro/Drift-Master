@@ -46,6 +46,8 @@ public class BowlingPinManager : MonoBehaviour
             if (pin == null || !pin.activeSelf) continue;
 
             float angle = Vector3.Angle(pin.transform.up, Vector3.up);
+            // デバッグ用ログ出力
+            Debug.Log($"Pin {pin.name}: Angle={angle:F1}");
 
             // 傾きが大きい、またはコース外（Y座標が低い）なら倒れたと判定
             if (angle > pinDownAngle || pin.transform.position.y < -0.5f)
