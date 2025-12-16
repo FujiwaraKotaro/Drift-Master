@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AddForce : MonoBehaviour
+public class GetItem : MonoBehaviour
 {
     Rigidbody m_Rigidbody;
     [SerializeField] private float initialForceStrength = 30000f; // éøó 1500Ç…ìKÇµÇΩóÕ
@@ -24,9 +24,6 @@ public class AddForce : MonoBehaviour
             m_Rigidbody.AddForce(transform.forward * initialForceStrength, ForceMode.Impulse);
             flag = true;
         }
-
-        float downforce = 2000f; // í≤êÆóp
-        //m_Rigidbody.AddForce(-transform.up * downforce * m_Rigidbody.velocity.magnitude);
 
         // éûë¨ (km/h) Ç…ïœä∑
         Debug.Log("Speed: " + (m_Rigidbody.velocity.magnitude * 3.6f).ToString("F1") + " km/h");

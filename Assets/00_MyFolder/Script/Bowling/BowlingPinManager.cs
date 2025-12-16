@@ -8,6 +8,7 @@ public class BowlingPinManager : MonoBehaviour
 {
     [SerializeField] private GameObject[] pins;    // シーン上のピン全10本
     [SerializeField] private float pinDownAngle = 45f; // 倒れたとみなす角度
+    [SerializeField] private float maxDistanceFromOriginal = 3.0f; // 初期位置からの最大許容距離
 
     // ピンの初期位置と回転を記憶するための構造体
     private struct PinTransform
@@ -40,17 +41,29 @@ public class BowlingPinManager : MonoBehaviour
     {
         List<GameObject> fallenPins = new List<GameObject>();
 
-        foreach (var pin in pins)
+        for (int i = 0; i < pins.Length; i++)
         {
+            var pin = pins[i];
+
             // 非アクティブ（すでに除去された）ピンは無視
             if (pin == null || !pin.activeSelf) continue;
 
             float angle = Vector3.Angle(pin.transform.up, Vector3.up);
-            // デバッグ用ログ出力
-            Debug.Log($"Pin {pin.name}: Angle={angle:F1}");
 
-            // 傾きが大きい、またはコース外（Y座標が低い）なら倒れたと判定
-            if (angle > pinDownAngle || pin.transform.position.y < -0.5f)
+            // 初期位置からの距離を計算
+            Vector3 originalPosition = initialPinTransforms[i].position;
+            float distanceFromOriginal = Vector3.Distance(pin.transform.position, originalPosition);
+
+            // デバッグ用ログ出力
+            Debug.Log($"Pin {pin.name}: Angle={angle:F1}°, Distance={distanceFromOriginal:F2}m");
+
+            // 倒れた判定の条件
+            // 1. 傾きが大きい
+            // 2. コース外（Y座標が低い）
+            // 3. 初期位置から一定距離以上離れた
+            if (angle > pinDownAngle ||
+                pin.transform.position.y < -0.5f ||
+                distanceFromOriginal > maxDistanceFromOriginal)
             {
                 fallenPins.Add(pin);
             }
