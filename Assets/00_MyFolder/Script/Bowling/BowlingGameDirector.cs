@@ -11,6 +11,7 @@ public class BowlingGameDirector : MonoBehaviour
     [SerializeField] private BowlingScoreManager scoreManager;
     [SerializeField] private BowlingPinManager pinManager;
 
+
     [Header("Game Objects")]
     [SerializeField] private Transform car;
     [SerializeField] private Rigidbody carRb;
@@ -118,7 +119,7 @@ public class BowlingGameDirector : MonoBehaviour
         }
 
 
-
+        FindObjectOfType<GetItem>().number_getItem = 1;
         isJudging = false;
     }
 
