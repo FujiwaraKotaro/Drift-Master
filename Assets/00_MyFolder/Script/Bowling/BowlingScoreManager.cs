@@ -123,12 +123,13 @@ public class BowlingScoreManager : MonoBehaviour
         return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
     }
 
-    // UI用のスコア計算（既存ロジックを微修正して維持）
+    // UI用のスコア計算（アイテム倍率を適用）
     public int[] GetCumulativeScores()
     {
         int[] frameScores = new int[10];
         for (int i = 0; i < 10; i++) frameScores[i] = -1;
 
+        int multiplier = FindObjectOfType<GetItem>().number_getItem;
         int runningTotal = 0;
         int rollIndex = 0;
 
@@ -155,7 +156,7 @@ public class BowlingScoreManager : MonoBehaviour
                 if (throws == 3) isFrameFinished = true;
                 else if (throws == 2 && sum < 10 && rolls[rollIndex] != 10) isFrameFinished = true; // オープン
 
-                if (isFrameFinished) currentFrameScore = sum;
+                if (isFrameFinished) currentFrameScore = sum * multiplier; // アイテム倍率を適用
                 advance = throws;
             }
             else // 1-9フレーム
@@ -163,7 +164,7 @@ public class BowlingScoreManager : MonoBehaviour
                 if (rolls[rollIndex] == 10) // Strike
                 {
                     if (rollIndex + 2 < rolls.Count)
-                        currentFrameScore = 10 + rolls[rollIndex + 1] + rolls[rollIndex + 2];
+                        currentFrameScore = (10 + rolls[rollIndex + 1] + rolls[rollIndex + 2]) * multiplier; // アイテム倍率を適用
                     advance = 1;
                 }
                 else if (rollIndex + 1 < rolls.Count) // Spare or Open
@@ -171,11 +172,11 @@ public class BowlingScoreManager : MonoBehaviour
                     if (rolls[rollIndex] + rolls[rollIndex + 1] == 10) // Spare
                     {
                         if (rollIndex + 2 < rolls.Count)
-                            currentFrameScore = 10 + rolls[rollIndex + 2];
+                            currentFrameScore = (10 + rolls[rollIndex + 2]) * multiplier; // アイテム倍率を適用
                     }
                     else // Open
                     {
-                        currentFrameScore = rolls[rollIndex] + rolls[rollIndex + 1];
+                        currentFrameScore = (rolls[rollIndex] + rolls[rollIndex + 1]) * multiplier; // アイテム倍率を適用
                     }
                     advance = 2;
                 }

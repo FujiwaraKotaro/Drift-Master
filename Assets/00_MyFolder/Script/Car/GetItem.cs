@@ -9,6 +9,8 @@ public class GetItem : MonoBehaviour
 
     private bool flag = false;
 
+    public int number_getItem = 1;
+
     void Start()
     {
         //Fetch the Rigidbody from the GameObject with this script attached
@@ -33,9 +35,9 @@ public class GetItem : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Item"))
         {
-
             // アイテム取得時も車の前方向に力を加える
             m_Rigidbody.AddForce(transform.forward * initialForceStrength, ForceMode.Impulse);
+            number_getItem++;
         }
     }
 }
