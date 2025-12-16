@@ -15,6 +15,7 @@ public class BowlingUIManager : MonoBehaviour
     public void UpdateScoreBoard(BowlingScoreManager scoreManager)
     {
         List<int> rolls = scoreManager.Rolls;
+        List<int> multipliers = scoreManager.RollMultipliers;
         int[] frameScores = scoreManager.GetCumulativeScores();
 
         int rollIndex = 0; // データのインデックス
@@ -42,22 +43,36 @@ public class BowlingUIManager : MonoBehaviour
                 else
                 {
                     int first = rolls[rollIndex];
+                    int multiplier1 = (rollIndex < multipliers.Count) ? multipliers[rollIndex] : 1;
+
                     if (first == 10) // Strike
                     {
-                        text1.text = "X";
+                        // ストライク時のアイテム倍率表示
+                        text1.text = multiplier1 > 1 ? $"X ×{multiplier1}" : "X";
                         text2.text = ""; // ストライク時は2マス目を空ける
                         rollIndex++;     // データは1つ消費
                     }
                     else // Open / Spare
                     {
-                        text1.text = first.ToString();
+                        // 1投目は必ず倍率を表示（1フレーム目に倒したピンの数×M1）
+                        text1.text = (first * multiplier1).ToString();
 
                         // 2投目があるか確認
                         if (rollIndex + 1 < rolls.Count)
                         {
                             int second = rolls[rollIndex + 1];
-                            if (first + second == 10) text2.text = "/";
-                            else text2.text = second.ToString();
+                            int multiplier2 = (rollIndex + 1 < multipliers.Count) ? multipliers[rollIndex + 1] : 1;
+
+                            if (first + second == 10)
+                            {
+                                // スペア時のアイテム倍率表示
+                                text2.text = multiplier2 > 1 ? $"/  ×{multiplier2}" : "/";
+                            }
+                            else
+                            {
+                                // 2投目も倍率を表示（2フレーム目に倒したピンの数×M2）
+                                text2.text = (second * multiplier2).ToString();
+                            }
 
                             rollIndex += 2; // データは2つ消費
                         }
@@ -77,17 +92,24 @@ public class BowlingUIManager : MonoBehaviour
                 TMP_Text text1 = rollBoxTexts[boxIndex];
                 TMP_Text text2 = rollBoxTexts[boxIndex + 1];
                 TMP_Text text3 = rollBoxTexts[boxIndex + 2];
-                // boxIndex += 3; // (ループ最後なので不要だが概念として)
 
                 // 10フレのロジック: データがある分だけ前から埋めていく
-                // 残りのデータ数を確認
                 int remainingRolls = rolls.Count - rollIndex;
 
                 // 1つ目のBox
                 if (remainingRolls >= 1)
                 {
                     int r1 = rolls[rollIndex];
-                    text1.text = (r1 == 10) ? "X" : r1.ToString();
+                    int mult1 = (rollIndex < multipliers.Count) ? multipliers[rollIndex] : 1;
+
+                    if (r1 == 10)
+                    {
+                        text1.text = mult1 > 1 ? $"X ×{mult1}" : "X";
+                    }
+                    else
+                    {
+                        text1.text = (r1*mult1).ToString();
+                    }
                 }
                 else text1.text = "";
 
@@ -96,10 +118,22 @@ public class BowlingUIManager : MonoBehaviour
                 {
                     int r1 = rolls[rollIndex];
                     int r2 = rolls[rollIndex + 1];
+                    int mult2 = (rollIndex + 1 < multipliers.Count) ? multipliers[rollIndex + 1] : 1;
 
-                    if (r2 == 10) text2.text = "X"; // 10フレはXXXありえる
-                    else if (r1 + r2 == 10 && r1 != 10) text2.text = "/"; // スペア判定
-                    else text2.text = r2.ToString();
+                    if (r2 == 10)
+                    {
+                        // 10フレでストライク
+                        text2.text = mult2 > 1 ? $"X ×{mult2}" : "X";
+                    }
+                    else if (r1 + r2 == 10 && r1 != 10)
+                    {
+                        // スペア判定
+                        text2.text = mult2 > 1 ? $"/  ×{mult2}" : "/";
+                    }
+                    else
+                    {
+                        text2.text = (r2 * mult2).ToString();   
+                    }
                 }
                 else text2.text = "";
 
@@ -108,14 +142,22 @@ public class BowlingUIManager : MonoBehaviour
                 {
                     int r2 = rolls[rollIndex + 1];
                     int r3 = rolls[rollIndex + 2];
+                    int mult3 = (rollIndex + 2 < multipliers.Count) ? multipliers[rollIndex + 2] : 1;
 
-                    if (r3 == 10) text3.text = "X";
-                    else if (r2 + r3 == 10 && r2 != 10) text3.text = "/";
-                    else text3.text = r3.ToString();
+                    if (r3 == 10)
+                    {
+                        text3.text = mult3 > 1 ? $"X ×{mult3}" : "X";
+                    }
+                    else if (r2 + r3 == 10 && r2 != 10)
+                    {
+                        text3.text = mult3 > 1 ? $"/  ×{mult3}" : "/";
+                    }
+                    else
+                    {
+                        text3.text = (r3 * mult3).ToString();
+                    }
                 }
                 else text3.text = "";
-
-                // 10フレは表示用にループ回したので、rollIndex自体の更新は不要（ループ終了）
             }
 
             // --- 下段 (Total Score) の更新 ---

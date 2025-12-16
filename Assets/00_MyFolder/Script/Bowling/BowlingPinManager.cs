@@ -54,9 +54,6 @@ public class BowlingPinManager : MonoBehaviour
             Vector3 originalPosition = initialPinTransforms[i].position;
             float distanceFromOriginal = Vector3.Distance(pin.transform.position, originalPosition);
 
-            // デバッグ用ログ出力
-            Debug.Log($"Pin {pin.name}: Angle={angle:F1}°, Distance={distanceFromOriginal:F2}m");
-
             // 倒れた判定の条件
             // 1. 傾きが大きい
             // 2. コース外（Y座標が低い）

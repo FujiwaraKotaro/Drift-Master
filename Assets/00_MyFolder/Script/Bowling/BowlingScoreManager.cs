@@ -11,6 +11,10 @@ public class BowlingScoreManager : MonoBehaviour
     private List<int> rolls = new List<int>();
     public List<int> Rolls => rolls;
 
+    // 投球ごとのアイテム倍率を記録（投球と同じ数だけ記録される）
+    private List<int> rollMultipliers = new List<int>();
+    public List<int> RollMultipliers => rollMultipliers;
+
     // Directorに「次にピンをどう操作すべきか」を伝えるための列挙型
     public enum NextPinAction
     {
@@ -31,6 +35,14 @@ public class BowlingScoreManager : MonoBehaviour
     public void RecordThrow(int pinsDown)
     {
         rolls.Add(pinsDown);
+
+        // 投球時のアイテム倍率を記録
+        GetItem getItemScript = FindObjectOfType<GetItem>();
+        int currentMultiplier = getItemScript.number_getItem;
+        rollMultipliers.Add(currentMultiplier);
+
+        Debug.Log($"投球記録: ピン={pinsDown}, 倍率=x{currentMultiplier}");
+
         uiManager.UpdateScoreBoard(this); // データ更新したら即UI反映
     }
 
@@ -47,8 +59,6 @@ public class BowlingScoreManager : MonoBehaviour
         {
             if (rollIndex >= rolls.Count)
             {
-                // データ切れ＝ここが「今のフレーム」の開始地点
-                // 新しいフレームの1投目なので、ピンは全リセット
                 return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
             }
 
@@ -57,13 +67,11 @@ public class BowlingScoreManager : MonoBehaviour
             if (first == 10) // Strike
             {
                 rollIndex++;
-                // 次のデータがなければ、次は「新しいフレームの1投目」
                 if (rollIndex >= rolls.Count)
                     return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
             }
             else // Open or Spare
             {
-                // 1投目だけ投げた状態か？
                 if (rollIndex + 1 >= rolls.Count)
                     return new GameStatus { IsGameOver = false, NextAction = NextPinAction.RemoveFallen };
 
@@ -74,7 +82,6 @@ public class BowlingScoreManager : MonoBehaviour
         // 10フレーム目の処理
         if (frame == 10)
         {
-            // まだ10フレに到達していない（9フレまででデータが終わっている）場合
             if (rollIndex >= rolls.Count)
                 return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
 
@@ -84,7 +91,6 @@ public class BowlingScoreManager : MonoBehaviour
             if (throwsIn10th == 1)
             {
                 int first = rolls[rollIndex];
-                // ストライクならリセット、それ以外なら除去
                 return new GameStatus
                 {
                     IsGameOver = false,
@@ -102,15 +108,12 @@ public class BowlingScoreManager : MonoBehaviour
                     return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
 
                 // 3投目がある場合
-                // スペアならリセット
                 if (first + second == 10)
                     return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
 
-                // ストライク→ストライクならリセット
                 if (first == 10 && second == 10)
                     return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
 
-                // ストライク→非ストライク（例: X, 5）なら除去
                 return new GameStatus { IsGameOver = false, NextAction = NextPinAction.RemoveFallen };
             }
             // 3投目を投げた直後
@@ -123,13 +126,12 @@ public class BowlingScoreManager : MonoBehaviour
         return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
     }
 
-    // UI用のスコア計算（アイテム倍率を適用）
+    // UI用のスコア計算（投球ごとのアイテム倍率を適用）
     public int[] GetCumulativeScores()
     {
         int[] frameScores = new int[10];
         for (int i = 0; i < 10; i++) frameScores[i] = -1;
 
-        int multiplier = FindObjectOfType<GetItem>().number_getItem;
         int runningTotal = 0;
         int rollIndex = 0;
 
@@ -144,19 +146,22 @@ public class BowlingScoreManager : MonoBehaviour
             {
                 int sum = 0;
                 int throws = 0;
-                // 残りの投球を合計
+
+                // 10フレームは投球ごとに倍率を適用
                 for (int i = 0; rollIndex + i < rolls.Count && i < 3; i++)
                 {
-                    sum += rolls[rollIndex + i];
+                    int pins = rolls[rollIndex + i];
+                    int multiplier = (rollIndex + i < rollMultipliers.Count) ? rollMultipliers[rollIndex + i] : 1;
+                    sum += pins * multiplier;
                     throws++;
                 }
 
-                // 終了条件を満たしたかチェック
                 bool isFrameFinished = false;
                 if (throws == 3) isFrameFinished = true;
-                else if (throws == 2 && sum < 10 && rolls[rollIndex] != 10) isFrameFinished = true; // オープン
+                else if (throws == 2 && rolls[rollIndex] + (throws > 1 ? rolls[rollIndex + 1] : 0) < 10 && rolls[rollIndex] != 10)
+                    isFrameFinished = true;
 
-                if (isFrameFinished) currentFrameScore = sum * multiplier; // アイテム倍率を適用
+                if (isFrameFinished) currentFrameScore = sum;
                 advance = throws;
             }
             else // 1-9フレーム
@@ -164,19 +169,51 @@ public class BowlingScoreManager : MonoBehaviour
                 if (rolls[rollIndex] == 10) // Strike
                 {
                     if (rollIndex + 2 < rolls.Count)
-                        currentFrameScore = (10 + rolls[rollIndex + 1] + rolls[rollIndex + 2]) * multiplier; // アイテム倍率を適用
+                    {
+                        // ストライク: 10×M1 + 次1投×M2 + 次2投×M3
+                        int pins1 = 10;
+                        int pins2 = rolls[rollIndex + 1];
+                        int pins3 = rolls[rollIndex + 2];
+
+                        int mult1 = (rollIndex < rollMultipliers.Count) ? rollMultipliers[rollIndex] : 1;
+                        int mult2 = (rollIndex + 1 < rollMultipliers.Count) ? rollMultipliers[rollIndex + 1] : 1;
+                        int mult3 = (rollIndex + 2 < rollMultipliers.Count) ? rollMultipliers[rollIndex + 2] : 1;
+
+                        currentFrameScore = (pins1 * mult1) + (pins2 * mult2) + (pins3 * mult3);
+
+                        Debug.Log($"フレーム{f + 1} ストライク: ({pins1}×{mult1})+({pins2}×{mult2})+({pins3}×{mult3})={currentFrameScore}");
+                    }
                     advance = 1;
                 }
                 else if (rollIndex + 1 < rolls.Count) // Spare or Open
                 {
-                    if (rolls[rollIndex] + rolls[rollIndex + 1] == 10) // Spare
+                    int first = rolls[rollIndex];
+                    int second = rolls[rollIndex + 1];
+
+                    if (first + second == 10) // Spare
                     {
                         if (rollIndex + 2 < rolls.Count)
-                            currentFrameScore = (10 + rolls[rollIndex + 2]) * multiplier; // アイテム倍率を適用
+                        {
+                            // スペア: 1投目×M1 + 2投目×M2 + 次1投×M3
+                            int mult1 = (rollIndex < rollMultipliers.Count) ? rollMultipliers[rollIndex] : 1;
+                            int mult2 = (rollIndex + 1 < rollMultipliers.Count) ? rollMultipliers[rollIndex + 1] : 1;
+                            int mult3 = (rollIndex + 2 < rollMultipliers.Count) ? rollMultipliers[rollIndex + 2] : 1;
+                            int next = rolls[rollIndex + 2];
+
+                            currentFrameScore = (first * mult1) + (second * mult2) + (next * mult3);
+
+                            Debug.Log($"フレーム{f + 1} スペア: ({first}×{mult1})+({second}×{mult2})+({next}×{mult3})={currentFrameScore}");
+                        }
                     }
                     else // Open
                     {
-                        currentFrameScore = (rolls[rollIndex] + rolls[rollIndex + 1]) * multiplier; // アイテム倍率を適用
+                        // オープン: 1投目×M1 + 2投目×M2
+                        int mult1 = (rollIndex < rollMultipliers.Count) ? rollMultipliers[rollIndex] : 1;
+                        int mult2 = (rollIndex + 1 < rollMultipliers.Count) ? rollMultipliers[rollIndex + 1] : 1;
+
+                        currentFrameScore = (first * mult1) + (second * mult2);
+
+                        Debug.Log($"フレーム{f + 1} オープン: ({first}×{mult1})+({second}×{mult2})={currentFrameScore}");
                     }
                     advance = 2;
                 }

@@ -28,7 +28,7 @@ public class GetItem : MonoBehaviour
         }
 
         // Žž‘¬ (km/h) ‚É•ÏŠ·
-        Debug.Log("Speed: " + (m_Rigidbody.velocity.magnitude * 3.6f).ToString("F1") + " km/h");
+        //Debug.Log("Speed: " + (m_Rigidbody.velocity.magnitude * 3.6f).ToString("F1") + " km/h");
     }
 
     private void OnTriggerEnter(Collider other)
