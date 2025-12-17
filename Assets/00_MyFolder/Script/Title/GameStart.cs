@@ -9,6 +9,7 @@ public class GameStart : MonoBehaviour
 
     [SerializeField] private GameObject titleUI;
     [SerializeField] private GameObject scoreBoard;
+    [SerializeField] private GameObject speedUI;
     [SerializeField] private Camera mainCamera; // ƒJƒƒ‰QÆ
 
     [SerializeField] private Vector3 cameraTargetPosition = new Vector3(0, 10, -10); // ˆÚ“®æ
@@ -20,6 +21,7 @@ public class GameStart : MonoBehaviour
 
         titleUI.SetActive(!titleUI.activeSelf);
         scoreBoard.SetActive(!scoreBoard.activeSelf);
+        speedUI.SetActive(!speedUI.activeSelf);
 
         if (mainCamera != null)
         {
