@@ -10,6 +10,8 @@ public class resultUIManager: MonoBehaviour
     [SerializeField] private float duration = 2.0f; // アニメーション時間
     [SerializeField] private GameObject scoreBoard;
     [SerializeField] private GameObject resultUI;
+    [SerializeField] private GameObject mainUI;
+    [SerializeField] private GameObject subCamera;
 
     private RectTransform rectTransform;
 
@@ -18,13 +20,25 @@ public class resultUIManager: MonoBehaviour
         rectTransform = scoreBoard.GetComponent<RectTransform>();
     }
 
+
     // ゲームオーバー時に呼び出す
     public void ShowResultUI()
     {
+        // scoreBoardを1階層上に移動
+        Transform currentParent = scoreBoard.transform.parent;
+        if (currentParent != null && currentParent.parent != null)
+        {
+            scoreBoard.transform.SetParent(currentParent.parent, true); // worldPositionStayをtrueに設定
+        }
+
+        mainUI.SetActive(false);
+
         // 位置を中央に移動
         rectTransform.DOAnchorPos(centerPosition, duration).SetEase(Ease.OutCubic);
         // サイズを大きく
         rectTransform.DOSizeDelta(enlargedSize, duration).SetEase(Ease.OutCubic);
         resultUI.SetActive(true);
+
+        subCamera.SetActive(false);
     }
 }

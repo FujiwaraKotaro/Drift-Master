@@ -21,6 +21,7 @@ public class CameraScript : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (GameStart.gameStarted == false) return;
         if (player == null || !GameStart.gameStarted) return;
 
         // --- 1. Ô‚ÌŒü‚«‚ÉŠî‚Ã‚¢‚ÄƒJƒƒ‰‚ÌˆÊ’u‚ğŒvZ ---

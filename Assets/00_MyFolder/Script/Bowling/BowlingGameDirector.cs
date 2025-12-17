@@ -15,15 +15,18 @@ public class BowlingGameDirector : MonoBehaviour
     [Header("Game Objects")]
     [SerializeField] private Transform car;
     [SerializeField] private Rigidbody carRb;
-
+    [SerializeField] private Transform mainCamera;
     [SerializeField] private float waitTimeSeconds = 3f;
+
+    [Header("スペースキーガイドUI")]
+    [SerializeField] private GameObject SpaceKeyGuideUI;
 
     private Vector3 carStartPos;
     private Quaternion carStartRot;
 
     // 状態管理用のフラグ
     public bool isJudging = false;      // 判定中かどうか
-    private bool isReadyToThrow = false; // 発射待ちかどうか（追加）
+    private bool isReadyToThrow = false; // 発射待ちかどうか
 
     void Start()
     {
@@ -32,6 +35,7 @@ public class BowlingGameDirector : MonoBehaviour
 
         // ゲーム開始時もセットアップを行う（物理を止めて発射待ちにする）
         ResetCar();
+        SpaceKeyGuideUI.SetActive(true);
     }
 
     void Update()
@@ -51,6 +55,7 @@ public class BowlingGameDirector : MonoBehaviour
         // --- 発射待ちの処理 ---
         if (isReadyToThrow)
         {
+
             // スペースキーが押されたら発射
             if (Input.GetKeyDown(KeyCode.Space) && GameStart.gameStarted)
             {
@@ -62,16 +67,12 @@ public class BowlingGameDirector : MonoBehaviour
 
     }
 
-    // 発射処理（追加）
     private void ShootCar()
     {
         isReadyToThrow = false; // 待機状態解除
         carRb.isKinematic = false; // 物理演算をオンにする（車が動き出す/重力が効く）
 
-        // ※もし「スペースキーでドカンと飛ばす」なら、ここでAddForceしてください
-        //carRb.AddForce(Vector3.forward * 10000f, ForceMode.Impulse);
-
-        // ※もし「車の操作スクリプト」があるなら、ここで enabled = true にしてください
+        SpaceKeyGuideUI.SetActive(false);
     }
 
 
@@ -116,6 +117,10 @@ public class BowlingGameDirector : MonoBehaviour
 
             // 4. 車をリセット
             ResetCar();
+
+            // 5. 車の近くにカメラを移動
+            mainCamera.position = new Vector3(-245f, 7.25f, -466f);
+            mainCamera.rotation = Quaternion.Euler(20f, 0f, 0f);
         }
 
 
@@ -133,7 +138,7 @@ public class BowlingGameDirector : MonoBehaviour
         carRb.velocity = Vector3.zero;
         carRb.angularVelocity = Vector3.zero;
 
-        // --- 変更: KinematicをONにして、物理的に「固定」する ---
+        // KinematicをONにして、物理的に「固定」する ---
         carRb.isKinematic = true;
 
         // 発射待ちフラグを立てる
