@@ -18,26 +18,7 @@ public class SpeedUI : MonoBehaviour
 
     void Start()
     {
-        // 車のRigidbodyを取得
-        if (carObject != null)
-        {
-            carRigidbody = carObject.GetComponent<Rigidbody>();
-            if (carRigidbody == null)
-            {
-                Debug.LogWarning("Car object doesn't have a Rigidbody component!");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("Car object is not assigned!");
-        }
-
-        // TMPテキストが設定されていない場合は警告
-        if (speedText == null)
-        {
-            Debug.LogWarning("Speed text component is not assigned!");
-        }
-
+        carRigidbody = carObject.GetComponent<Rigidbody>();
         lastUpdateTime = Time.time;
     }
 
@@ -63,16 +44,6 @@ public class SpeedUI : MonoBehaviour
 
             // TMPテキストに表示
             speedText.text = string.Format(speedFormat, speedInKMH);
-        }
-    }
-
-    // 車のオブジェクトを動的に設定するメソッド（必要に応じて）
-    public void SetCarObject(GameObject car)
-    {
-        carObject = car;
-        if (carObject != null)
-        {
-            carRigidbody = carObject.GetComponent<Rigidbody>();
         }
     }
 }
