@@ -10,7 +10,6 @@ public class SpeedUI : MonoBehaviour
     [SerializeField] private TMP_Text speedText;   // 速度表示用のTMPテキスト
 
     [Header("Settings")]
-    [SerializeField] private string speedFormat = "時速{0:F1}km"; // 表示フォーマット
     [SerializeField] private float updateInterval = 0.1f;         // 更新間隔（秒）
 
     private Rigidbody carRigidbody;
@@ -34,16 +33,13 @@ public class SpeedUI : MonoBehaviour
 
     private void UpdateSpeedDisplay()
     {
-        if (carRigidbody != null && speedText != null)
-        {
-            // 車の速度を取得（m/s）
-            float speedInMPS = carRigidbody.velocity.magnitude;
+        // 車の速度を取得（m/s）
+        float speedInMPS = carRigidbody.velocity.magnitude;
 
-            // 時速（km/h）に変換（m/s × 3.6 = km/h）
-            float speedInKMH = speedInMPS * 3.6f;
+        // 時速（km/h）に変換（m/s × 3.6 = km/h）
+        float speedInKMH = speedInMPS * 3.6f;
 
-            // TMPテキストに表示
-            speedText.text = string.Format(speedFormat, speedInKMH);
-        }
+        // TMPテキストに表示
+        speedText.text = string.Format("時速{0:F1}km", speedInKMH);
     }
 }

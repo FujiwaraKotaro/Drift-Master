@@ -13294,8 +13294,6 @@ GameObject:
   - component: {fileID: 612020988}
   - component: {fileID: 612020987}
   - component: {fileID: 612020986}
-  - component: {fileID: 612020990}
-  - component: {fileID: 612020991}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -13388,67 +13386,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &612020990
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612020985}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bd98942c76d1e194292086b8a376b6bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rollBoxTexts:
-  - {fileID: 27846343}
-  - {fileID: 1046024889}
-  - {fileID: 766100558}
-  - {fileID: 1460669142}
-  - {fileID: 1039890145}
-  - {fileID: 647935067}
-  - {fileID: 1390518828}
-  - {fileID: 909971789}
-  - {fileID: 2104231915}
-  - {fileID: 126687589}
-  - {fileID: 638796009}
-  - {fileID: 1372716030}
-  - {fileID: 343004414}
-  - {fileID: 596730930}
-  - {fileID: 1214296372}
-  - {fileID: 2144313590}
-  - {fileID: 2001094179}
-  - {fileID: 1685060093}
-  - {fileID: 1402568040}
-  - {fileID: 514683192}
-  - {fileID: 125378068}
-  totalScoreTexts:
-  - {fileID: 487313403}
-  - {fileID: 1878643159}
-  - {fileID: 26173558}
-  - {fileID: 1532549070}
-  - {fileID: 2028320879}
-  - {fileID: 770457547}
-  - {fileID: 1217298464}
-  - {fileID: 722186450}
-  - {fileID: 945554971}
-  - {fileID: 1917264430}
---- !u!114 &612020991
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 612020985}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b920a0d692e90a543b9e3586343469dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  carObject: {fileID: 6417421196527943296}
-  speedText: {fileID: 1269813737}
-  speedFormat: "\u6642\u901F{0:F1}km"
-  updateInterval: 0.1
 --- !u!1 &616927062
 GameObject:
   m_ObjectHideFlags: 0
@@ -18648,6 +18585,100 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 494338, guid: ea8ec36c7f9b40f4faa40bf80afec5a3, type: 3}
   m_PrefabInstance: {fileID: 891558492}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &891920685
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 891920688}
+  - component: {fileID: 891920687}
+  - component: {fileID: 891920686}
+  m_Layer: 0
+  m_Name: UIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &891920686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 891920685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bd98942c76d1e194292086b8a376b6bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rollBoxTexts:
+  - {fileID: 27846343}
+  - {fileID: 1046024889}
+  - {fileID: 766100558}
+  - {fileID: 1460669142}
+  - {fileID: 1039890145}
+  - {fileID: 647935067}
+  - {fileID: 1390518828}
+  - {fileID: 909971789}
+  - {fileID: 2104231915}
+  - {fileID: 126687589}
+  - {fileID: 638796009}
+  - {fileID: 1372716030}
+  - {fileID: 343004414}
+  - {fileID: 596730930}
+  - {fileID: 1214296372}
+  - {fileID: 2144313590}
+  - {fileID: 2001094179}
+  - {fileID: 1685060093}
+  - {fileID: 1402568040}
+  - {fileID: 514683192}
+  - {fileID: 125378068}
+  totalScoreTexts:
+  - {fileID: 487313403}
+  - {fileID: 1878643159}
+  - {fileID: 26173558}
+  - {fileID: 1532549070}
+  - {fileID: 2028320879}
+  - {fileID: 770457547}
+  - {fileID: 1217298464}
+  - {fileID: 722186450}
+  - {fileID: 945554971}
+  - {fileID: 1917264430}
+--- !u!114 &891920687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 891920685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b920a0d692e90a543b9e3586343469dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  carObject: {fileID: 6417421196527943296}
+  speedText: {fileID: 1269813737}
+  speedFormat: "\u6642\u901F{0:F1}km"
+  updateInterval: 0.1
+--- !u!4 &891920688
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 891920685}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 480, y: 270, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &897064331
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -36716,7 +36747,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd4c8ea59246175499ca60a3e682a559, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uiManager: {fileID: 612020990}
+  uiManager: {fileID: 891920686}
 --- !u!114 &1850333026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43372,4 +43403,5 @@ SceneRoots:
   - {fileID: 1850333024}
   - {fileID: 360957862}
   - {fileID: 669445770}
+  - {fileID: 891920688}
   - {fileID: 1699088937}

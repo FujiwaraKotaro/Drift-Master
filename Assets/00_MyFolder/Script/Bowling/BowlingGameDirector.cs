@@ -23,7 +23,7 @@ public class BowlingGameDirector : MonoBehaviour
 
     // 状態管理用のフラグ
     public bool isJudging = false;      // 判定中かどうか
-    private bool isReadyToThrow = false; // 発射待ちかどうか（追加）
+    private bool isReadyToThrow = false; // 発射待ちかどうか
 
     void Start()
     {
@@ -51,6 +51,7 @@ public class BowlingGameDirector : MonoBehaviour
         // --- 発射待ちの処理 ---
         if (isReadyToThrow)
         {
+
             // スペースキーが押されたら発射
             if (Input.GetKeyDown(KeyCode.Space) && GameStart.gameStarted)
             {
