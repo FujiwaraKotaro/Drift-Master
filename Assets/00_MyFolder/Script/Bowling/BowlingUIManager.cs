@@ -55,7 +55,7 @@ public class BowlingUIManager : MonoBehaviour
                     else // Open / Spare
                     {
                         // 1投目は必ず倍率を表示（1フレーム目に倒したピンの数×M1）
-                        text1.text = (first * multiplier1).ToString();
+                        text1.text = $"{first}  ×{multiplier1}";
 
                         // 2投目があるか確認
                         if (rollIndex + 1 < rolls.Count)
@@ -71,7 +71,7 @@ public class BowlingUIManager : MonoBehaviour
                             else
                             {
                                 // 2投目も倍率を表示（2フレーム目に倒したピンの数×M2）
-                                text2.text = (second * multiplier2).ToString();
+                                text2.text = $"{second}  ×{multiplier2}";
                             }
 
                             rollIndex += 2; // データは2つ消費
@@ -108,7 +108,7 @@ public class BowlingUIManager : MonoBehaviour
                     }
                     else
                     {
-                        text1.text = (r1*mult1).ToString();
+                        text1.text = $"{r1}  ×{mult1}";
                     }
                 }
                 else text1.text = "";
@@ -132,7 +132,7 @@ public class BowlingUIManager : MonoBehaviour
                     }
                     else
                     {
-                        text2.text = (r2 * mult2).ToString();   
+                        text2.text = $"{r2}  ×{mult2}";   
                     }
                 }
                 else text2.text = "";
@@ -154,7 +154,7 @@ public class BowlingUIManager : MonoBehaviour
                     }
                     else
                     {
-                        text3.text = (r3 * mult3).ToString();
+                        text3.text = $"{r3}  ×{mult3}";
                     }
                 }
                 else text3.text = "";

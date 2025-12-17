@@ -9,10 +9,7 @@ public class GameStart : MonoBehaviour
 
     [SerializeField] private GameObject titleUI;
     [SerializeField] private GameObject MainUI;
-    [SerializeField] private Camera mainCamera; // ƒJƒƒ‰QÆ
-
-    [SerializeField] private Vector3 cameraTargetPosition = new Vector3(0, 10, -10); // ˆÚ“®æ
-    [SerializeField] private Vector3 cameraTargetRotation = new Vector3(30, 0, 0);   // ‰ñ“]æiEulerŠpj
+    [SerializeField] private GameObject subCamera;
 
     public void StartGame()
     {
@@ -20,11 +17,7 @@ public class GameStart : MonoBehaviour
 
         titleUI.SetActive(!titleUI.activeSelf);
         MainUI.SetActive(!MainUI.activeSelf);
+        subCamera.SetActive(true);
 
-        if (mainCamera != null)
-        {
-            mainCamera.transform.DOMove(cameraTargetPosition, 1.0f);
-            mainCamera.transform.DORotate(cameraTargetRotation, 1.0f); // 1•b‚©‚¯‚Ä‰ñ“]
-        }
     }
 }
