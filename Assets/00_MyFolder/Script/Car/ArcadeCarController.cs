@@ -9,7 +9,13 @@ public class ArcadeCarController : MonoBehaviour
     [Tooltip("加速力")]
     public float acceleration = 50f;
     [Tooltip("旋回性能（高いほど急に曲がる）")]
-    public float turnSpeed = 100f;
+    public float baseTurnSpeed = 100f; // 基本旋回速度
+
+    [Header("速度別旋回設定")]
+    [Tooltip("200km/h時の旋回速度")]
+    public float turnSpeedAt200kmh = 70f;
+    [Tooltip("350km/h以上時の旋回速度")]
+    public float turnSpeedAt350kmh = 100f;
 
     [Header("重心調整")]
     [Tooltip("転倒防止のため重心を下げるオフセット値")]
@@ -21,11 +27,11 @@ public class ArcadeCarController : MonoBehaviour
 
     public LayerMask groundLayer;
     public float rayLength = 1.2f;
-    private bool isGrounded;
 
     private Rigidbody rb;
     private float moveInput;
     private float turnInput;
+    private float currentTurnSpeed; // 動的に計算される旋回速度
 
     private bool BGMflag = true;
 
@@ -53,6 +59,9 @@ public class ArcadeCarController : MonoBehaviour
         // 必要なら Input.GetAxis("Vertical") を足してください
         moveInput = 1.0f;
         turnInput = Input.GetAxis("Horizontal"); // A/D または 矢印左右
+
+        // 速度に応じた旋回速度を計算
+        UpdateTurnSpeed();
     }
 
     void FixedUpdate()
@@ -62,6 +71,30 @@ public class ArcadeCarController : MonoBehaviour
             Move();      // 走る
             Turn();      // 曲がる
             ApplyGrip(); // グリップする
+        }
+    }
+
+    // 速度に応じて旋回速度を更新
+    private void UpdateTurnSpeed()
+    {
+        // 現在の速度をkm/hで取得
+        float currentSpeedKmh = rb.velocity.magnitude * 3.6f;
+
+        if (currentSpeedKmh <= 200f)
+        {
+            // 200km/h以下の場合、線形補間で旋回速度を計算
+            currentTurnSpeed = Mathf.Lerp(baseTurnSpeed, turnSpeedAt200kmh, currentSpeedKmh / 200f);
+        }
+        else if (currentSpeedKmh >= 350f)
+        {
+            // 350km/h以上の場合
+            currentTurnSpeed = turnSpeedAt350kmh;
+        }
+        else
+        {
+            // 200km/h～350km/hの間の場合、線形補間
+            float t = (currentSpeedKmh - 200f) / (350f - 200f);
+            currentTurnSpeed = Mathf.Lerp(turnSpeedAt200kmh, turnSpeedAt350kmh, t);
         }
     }
 
@@ -78,11 +111,10 @@ public class ArcadeCarController : MonoBehaviour
     // 2. 旋回（物理演算ではなく回転を直接操作）
     void Turn()
     {
-
         // 停止中は回らないようにする（少し動いていれば回れる）
         if (rb.velocity.magnitude > 0.1f)
         {
-            float turn = turnInput * turnSpeed * Time.fixedDeltaTime;
+            float turn = turnInput * currentTurnSpeed * Time.fixedDeltaTime;
             Quaternion turnRotation = Quaternion.Euler(0f, turn, 0f);
             rb.MoveRotation(rb.rotation * turnRotation);
         }

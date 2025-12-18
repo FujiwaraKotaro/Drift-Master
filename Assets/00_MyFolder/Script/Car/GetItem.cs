@@ -48,7 +48,7 @@ public class GetItem : MonoBehaviour
         CanvasGroup canvasGroup = scoreUIInstance.GetComponent<CanvasGroup>();
 
         // TMPテキストにスコアを設定
-        scoreText.text = "スコア×" + number_getItem.ToString();
+        scoreText.text = "スピードUP\nスコア×" + number_getItem.ToString();
 
         // 初期状態を設定
         canvasGroup.alpha = 1f;
