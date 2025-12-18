@@ -8,6 +8,8 @@ TagManager:
   - Item
   - Ground
   - Ocean
+  - Wall
+  - Car
   layers:
   - Default
   - TransparentFX
