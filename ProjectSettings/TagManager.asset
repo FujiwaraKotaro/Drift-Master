@@ -9,6 +9,7 @@ TagManager:
   - Ground
   - Ocean
   - Wall
+  - Car
   layers:
   - Default
   - TransparentFX

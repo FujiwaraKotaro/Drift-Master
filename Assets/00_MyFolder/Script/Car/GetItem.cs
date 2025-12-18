@@ -32,6 +32,7 @@ public class GetItem : MonoBehaviour
             m_Rigidbody.AddForce(transform.forward * initialForceStrength, ForceMode.Impulse);
             number_getItem++;
 
+            SoundManager.Instance.PlaySE("SpeedUpSE");
             // スコアUI演出を開始
             ShowScoreUI();
         }

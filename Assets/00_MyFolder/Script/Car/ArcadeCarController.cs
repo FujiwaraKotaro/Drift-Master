@@ -23,12 +23,11 @@ public class ArcadeCarController : MonoBehaviour
     public float rayLength = 1.2f;
     private bool isGrounded;
 
-    // 回転制御用フラグ
-    private bool isAlignedWithWall = false;
-
     private Rigidbody rb;
     private float moveInput;
     private float turnInput;
+
+    private bool BGMflag = true;
 
     void Start()
     {
@@ -39,6 +38,17 @@ public class ArcadeCarController : MonoBehaviour
 
     void Update()
     {
+        if (CheckGround() && BGMflag)
+        {
+            SoundManager.Instance.PlayBGM("EnginBGM");
+            BGMflag = false;
+        }
+
+        if (!CheckGround())
+        {
+            SoundManager.Instance.StopBGM();
+            BGMflag = true;
+        }
         // 入力の取得（自動進行なのでアクセルは常に1、ブレーキなし）
         // 必要なら Input.GetAxis("Vertical") を足してください
         moveInput = 1.0f;
@@ -146,16 +156,6 @@ public class ArcadeCarController : MonoBehaviour
         // 速度を壁と並行な方向に向け直し、速度は維持
         rb.velocity = wallDirection * currentSpeed;
 
-        // 壁と平行になったので回転を停止
-        isAlignedWithWall = true;
-
         Debug.Log($"Wall trigger detected! Aligned with wall direction: {wallDirection}");
-    }
-
-    // 壁との平行状態をリセットする公開メソッド（必要に応じて呼び出し）
-    public void ResetWallAlignment()
-    {
-        isAlignedWithWall = false;
-        Debug.Log("Wall alignment reset - rotation enabled");
     }
 }
