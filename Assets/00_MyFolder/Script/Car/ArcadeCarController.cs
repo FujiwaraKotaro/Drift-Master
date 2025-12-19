@@ -44,7 +44,7 @@ public class ArcadeCarController : MonoBehaviour
 
     void Update()
     {
-        if (CheckGround() && BGMflag)
+        if (CheckGround() && BGMflag && !rb.isKinematic)
         {
             SoundManager.Instance.PlayBGM("EnginBGM");
             BGMflag = false;
@@ -66,7 +66,7 @@ public class ArcadeCarController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (CheckGround()) // 【追加】もし地面についていたら...
+        if (CheckGround()　&& !rb.isKinematic) // 【追加】もし地面についていたら...
         {
             Move();      // 走る
             Turn();      // 曲がる
@@ -137,7 +137,7 @@ public class ArcadeCarController : MonoBehaviour
     private bool CheckGround()
     {
         // 自分の位置から、下方向(-transform.up)に、rayLengthの長さだけ線を飛ばす
-        return Physics.Raycast(transform.position, -transform.up, rayLength, groundLayer);
+        return Physics.Raycast(transform.position, -transform.up, rayLength * transform.localScale.x, groundLayer);
     }
 
     // Wall衝突時の処理
