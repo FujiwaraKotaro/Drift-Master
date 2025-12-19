@@ -1,4 +1,4 @@
-using System.Collections;
+　using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -137,6 +137,9 @@ public class BowlingGameDirector : MonoBehaviour
         // 物理挙動を完全に止める
         carRb.velocity = Vector3.zero;
         carRb.angularVelocity = Vector3.zero;
+
+        //サイズをもとに戻す
+        car.transform.localScale = Vector3.one;
 
         // KinematicをONにして、物理的に「固定」する ---
         carRb.isKinematic = true;

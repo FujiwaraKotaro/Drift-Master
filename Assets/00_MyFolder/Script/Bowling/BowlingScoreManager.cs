@@ -5,6 +5,10 @@ using UnityEngine;
 // 「現在何フレーム目か？」「次はピンをリセットすべきか？」をすべて履歴(rolls)から都度計算する
 public class BowlingScoreManager : MonoBehaviour
 {
+    [Header("Game Settings")]
+    [SerializeField] private int totalFrames = 10; // フレーム数を可変にする
+    public int TotalFrames => totalFrames;
+
     [SerializeField] private BowlingUIManager uiManager;
 
     // 唯一の「正解」データ (Single Source of Truth)
@@ -37,6 +41,16 @@ public class BowlingScoreManager : MonoBehaviour
         uiManager.UpdateScoreBoard(this); // データ更新したら即UI反映
     }
 
+    // フレーム数を動的に設定するメソッド
+    public void SetTotalFrames(int frames)
+    {
+        if (frames > 0)
+        {
+            totalFrames = frames;
+            Debug.Log($"総フレーム数を{frames}に変更しました");
+        }
+    }
+
     // --- 計算ロジック ---
 
     // 現在の履歴から「ゲームが終わっているか」「次はどうすべきか」を算出する
@@ -45,8 +59,8 @@ public class BowlingScoreManager : MonoBehaviour
         int rollIndex = 0;
         int frame = 1;
 
-        // 1〜9フレームのシミュレーション
-        for (; frame < 10; frame++)
+        // 1〜(最終フレーム-1)のシミュレーション
+        for (; frame < totalFrames; frame++)
         {
             if (rollIndex >= rolls.Count)
             {
@@ -70,16 +84,16 @@ public class BowlingScoreManager : MonoBehaviour
             }
         }
 
-        // 10フレーム目の処理
-        if (frame == 10)
+        // 最終フレームの処理
+        if (frame == totalFrames)
         {
             if (rollIndex >= rolls.Count)
                 return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
 
-            int throwsIn10th = rolls.Count - rollIndex;
+            int throwsInFinalFrame = rolls.Count - rollIndex;
 
             // 1投目を投げた直後
-            if (throwsIn10th == 1)
+            if (throwsInFinalFrame == 1)
             {
                 int first = rolls[rollIndex];
                 return new GameStatus
@@ -89,7 +103,7 @@ public class BowlingScoreManager : MonoBehaviour
                 };
             }
             // 2投目を投げた直後
-            else if (throwsIn10th == 2)
+            else if (throwsInFinalFrame == 2)
             {
                 int first = rolls[rollIndex];
                 int second = rolls[rollIndex + 1];
@@ -108,7 +122,7 @@ public class BowlingScoreManager : MonoBehaviour
                 return new GameStatus { IsGameOver = false, NextAction = NextPinAction.RemoveFallen };
             }
             // 3投目を投げた直後
-            else if (throwsIn10th == 3)
+            else if (throwsInFinalFrame == 3)
             {
                 return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
             }
@@ -120,25 +134,25 @@ public class BowlingScoreManager : MonoBehaviour
     // UI用のスコア計算（標準的なボウリングルールに従う）
     public int[] GetCumulativeScores()
     {
-        int[] frameScores = new int[10];
-        for (int i = 0; i < 10; i++) frameScores[i] = -1;
+        int[] frameScores = new int[totalFrames];
+        for (int i = 0; i < totalFrames; i++) frameScores[i] = -1;
 
         int runningTotal = 0;
         int rollIndex = 0;
 
-        for (int f = 0; f < 10; f++)
+        for (int f = 0; f < totalFrames; f++)
         {
             if (rollIndex >= rolls.Count) break;
 
             int currentFrameScore = -1;
             int advance = 0;
 
-            if (f == 9) // 10フレーム
+            if (f == totalFrames - 1) // 最終フレーム
             {
                 int sum = 0;
                 int throws = 0;
 
-                // 10フレームは全投球の合計
+                // 最終フレームは全投球の合計
                 for (int i = 0; rollIndex + i < rolls.Count && i < 3; i++)
                 {
                     sum += rolls[rollIndex + i];
@@ -153,7 +167,7 @@ public class BowlingScoreManager : MonoBehaviour
                 if (isFrameFinished) currentFrameScore = sum;
                 advance = throws;
             }
-            else // 1-9フレーム
+            else // 通常フレーム
             {
                 if (rolls[rollIndex] == 10) // Strike
                 {

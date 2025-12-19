@@ -1,39 +1,46 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 
 public class BowlingUIManager : MonoBehaviour
 {
     [Header("UI References")]
-    // ã’iF“Š‹…‚²‚Æ‚ÌƒeƒLƒXƒgƒŠƒXƒg
-    // —v‘f”‚Í21ŒÂ‚Å‚ ‚é•K—v‚ª‚ ‚è‚Ü‚· (Frame1-9: 2ŒÂ‚¸‚Â, Frame10: 3ŒÂ = 18+3=21)
+    // ä¸Šæ®µï¼šæŠ•çƒã”ã¨ã®ãƒ†ã‚­ã‚¹ãƒˆãƒªã‚¹ãƒˆ
     [SerializeField] private List<TMP_Text> rollBoxTexts;
 
-    // ‰º’iFŠeƒtƒŒ[ƒ€‚Ì—İÏƒXƒRƒA (ƒTƒCƒY10)
+    // ä¸‹æ®µï¼šå„ãƒ•ãƒ¬ãƒ¼ãƒ ã®ç´¯ç©ã‚¹ã‚³ã‚¢
     [SerializeField] private List<TMP_Text> totalScoreTexts;
 
     public void UpdateScoreBoard(BowlingScoreManager scoreManager)
     {
         List<int> rolls = scoreManager.Rolls;
         int[] frameScores = scoreManager.GetCumulativeScores();
+        int totalFrames = scoreManager.TotalFrames;
 
-        int rollIndex = 0; // ƒf[ƒ^‚ÌƒCƒ“ƒfƒbƒNƒX
-        int boxIndex = 0;  // UIƒeƒLƒXƒg(Box)‚ÌƒCƒ“ƒfƒbƒNƒX
+        int rollIndex = 0; // ãƒ‡ãƒ¼ã‚¿ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
+        int boxIndex = 0;  // UIãƒ†ã‚­ã‚¹ãƒˆ(Box)ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹
 
-        // 1`10ƒtƒŒ[ƒ€‚Ìƒ‹[ƒv
-        for (int f = 1; f <= 10; f++)
+        // 1ã€œtotalFramesãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ«ãƒ¼ãƒ—
+        for (int f = 1; f <= totalFrames; f++)
         {
-            // --- ã’i (History / Box) ‚ÌXV ---
-
-            if (f < 10) // 1~9ƒtƒŒ[ƒ€ (Box‚Í2‚Â)
+            // UIãŒä¸è¶³ã—ã¦ã„ã‚‹å ´åˆã¯å‡¦ç†ã‚’åœæ­¢
+            if (f <= totalFrames - 1) // é€šå¸¸ãƒ•ãƒ¬ãƒ¼ãƒ 
             {
-                // ƒeƒLƒXƒgQÆ‚ğæ“¾ (”ÍˆÍŠOƒ`ƒFƒbƒNŠÜ‚Ş)
                 if (boxIndex + 1 >= rollBoxTexts.Count) break;
+            }
+            else // æœ€çµ‚ãƒ•ãƒ¬ãƒ¼ãƒ 
+            {
+                if (boxIndex + 2 >= rollBoxTexts.Count) break;
+            }
+
+            // --- ä¸Šæ®µ (History / Box) ã®æ›´æ–° ---
+            if (f < totalFrames) // é€šå¸¸ãƒ•ãƒ¬ãƒ¼ãƒ  (Boxã¯2ã¤)
+            {
                 TMP_Text text1 = rollBoxTexts[boxIndex];
                 TMP_Text text2 = rollBoxTexts[boxIndex + 1];
-                boxIndex += 2; // Ÿ‚ÌƒtƒŒ[ƒ€—p‚Éi‚ß‚é
+                boxIndex += 2;
 
-                // ƒf[ƒ^‚ª‚È‚¢ê‡
+                // ãƒ‡ãƒ¼ã‚¿ãŒãªã„å ´åˆ
                 if (rollIndex >= rolls.Count)
                 {
                     text1.text = "";
@@ -46,51 +53,36 @@ public class BowlingUIManager : MonoBehaviour
                     if (first == 10) // Strike
                     {
                         text1.text = "X";
-                        text2.text = ""; // ƒXƒgƒ‰ƒCƒN‚Í2ƒ}ƒX–Ú‚ğ‹ó‚¯‚é
-                        rollIndex++;     // ƒf[ƒ^‚Í1‚ÂÁ”ï
+                        text2.text = "";
+                        rollIndex++;
                     }
                     else // Open / Spare
                     {
-                        // 1“Š–Ú
                         text1.text = first.ToString();
 
-                        // 2“Š–Ú‚ª‚ ‚é‚©Šm”F
                         if (rollIndex + 1 < rolls.Count)
                         {
                             int second = rolls[rollIndex + 1];
-
-                            if (first + second == 10)
-                            {
-                                text2.text = "/"; // ƒXƒyƒA
-                            }
-                            else
-                            {
-                                text2.text = second.ToString();
-                            }
-
-                            rollIndex += 2; // ƒf[ƒ^‚Í2‚ÂÁ”ï
+                            text2.text = (first + second == 10) ? "/" : second.ToString();
+                            rollIndex += 2;
                         }
                         else
                         {
-                            // ‚Ü‚¾“Š‚°‚Ä‚¢‚È‚¢
                             text2.text = "";
-                            rollIndex++; // 1“Š–Ú‚¾‚¯Á”ï
+                            rollIndex++;
                         }
                     }
                 }
             }
-            else // 10ƒtƒŒ[ƒ€ (Box‚Í3‚Â)
+            else // æœ€çµ‚ãƒ•ãƒ¬ãƒ¼ãƒ  (Boxã¯3ã¤)
             {
-                // ƒeƒLƒXƒgQÆ‚ğæ“¾
-                if (boxIndex + 2 >= rollBoxTexts.Count) break;
                 TMP_Text text1 = rollBoxTexts[boxIndex];
                 TMP_Text text2 = rollBoxTexts[boxIndex + 1];
                 TMP_Text text3 = rollBoxTexts[boxIndex + 2];
 
-                // 10ƒtƒŒ‚ÌƒƒWƒbƒN: ƒf[ƒ^‚ª‚ ‚é•ª‚¾‚¯‘O‚©‚ç–„‚ß‚Ä‚¢‚­
                 int remainingRolls = rolls.Count - rollIndex;
 
-                // 1‚Â–Ú‚ÌBox
+                // 1ã¤ç›®ã®Box
                 if (remainingRolls >= 1)
                 {
                     int r1 = rolls[rollIndex];
@@ -98,55 +90,49 @@ public class BowlingUIManager : MonoBehaviour
                 }
                 else text1.text = "";
 
-                // 2‚Â–Ú‚ÌBox
+                // 2ã¤ç›®ã®Box
                 if (remainingRolls >= 2)
                 {
                     int r1 = rolls[rollIndex];
                     int r2 = rolls[rollIndex + 1];
 
                     if (r2 == 10)
-                    {
-                        text2.text = "X"; // 10ƒtƒŒ‚ÅƒXƒgƒ‰ƒCƒN
-                    }
+                        text2.text = "X";
                     else if (r1 + r2 == 10 && r1 != 10)
-                    {
-                        text2.text = "/"; // ƒXƒyƒA”»’è
-                    }
+                        text2.text = "/";
                     else
-                    {
                         text2.text = r2.ToString();
-                    }
                 }
                 else text2.text = "";
 
-                // 3‚Â–Ú‚ÌBox
+                // 3ã¤ç›®ã®Box
                 if (remainingRolls >= 3)
                 {
                     int r2 = rolls[rollIndex + 1];
                     int r3 = rolls[rollIndex + 2];
 
                     if (r3 == 10)
-                    {
                         text3.text = "X";
-                    }
                     else if (r2 + r3 == 10 && r2 != 10)
-                    {
                         text3.text = "/";
-                    }
                     else
-                    {
                         text3.text = r3.ToString();
-                    }
                 }
                 else text3.text = "";
             }
 
-            // --- ‰º’i (Total Score) ‚ÌXV ---
-            if (f - 1 < totalScoreTexts.Count)
+            // --- ä¸‹æ®µ (Total Score) ã®æ›´æ–° ---
+            if (f - 1 < totalScoreTexts.Count && f - 1 < frameScores.Length)
             {
                 int score = frameScores[f - 1];
                 totalScoreTexts[f - 1].text = (score != -1) ? score.ToString() : "";
             }
+        }
+
+        // ä½¿ç”¨ã•ã‚Œã¦ã„ãªã„UIãƒ†ã‚­ã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢
+        for (int i = totalFrames; i < totalScoreTexts.Count; i++)
+        {
+            totalScoreTexts[i].text = "";
         }
     }
 }
