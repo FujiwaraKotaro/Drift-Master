@@ -6,9 +6,11 @@ using UnityEngine;
 // ・ピンの配置リセット（全復活 or 残りピンのみ維持）
 public class BowlingPinManager : MonoBehaviour
 {
-    [SerializeField] private GameObject[] pins;    // シーン上のピン全10本
+    [SerializeField] private GameObject[] pins;    // シーン上のピン（初期設定用）
     [SerializeField] private float pinDownAngle = 45f; // 倒れたとみなす角度
     [SerializeField] private float maxDistanceFromOriginal = 3.0f; // 初期位置からの最大許容距離
+
+    private string pinTag = "Pin"; // ピンを識別するためのタグ
 
     // ピンの初期位置と回転を記憶するための構造体
     private struct PinTransform
@@ -26,14 +28,48 @@ public class BowlingPinManager : MonoBehaviour
     }
 
     private List<PinTransform> initialPinTransforms = new List<PinTransform>();
+    private List<GameObject> currentPins = new List<GameObject>(); // 現在のピンリスト
 
     void Start()
     {
         // ゲーム開始時に全ピンの初期位置を記憶する
+        InitializePins();
+    }
+
+    // ピンの初期化処理
+    private void InitializePins()
+    {
+        initialPinTransforms.Clear();
+        currentPins.Clear();
+
         foreach (var pin in pins)
         {
-            initialPinTransforms.Add(new PinTransform(pin));
+            if (pin != null)
+            {
+                initialPinTransforms.Add(new PinTransform(pin));
+                currentPins.Add(pin);
+            }
         }
+    }
+
+    // PinTagがついているアクティブなオブジェクトを検索して新しいピンとして設定
+    private void FindAndSetCurrentPins()
+    {
+        GameObject[] taggedPins = GameObject.FindGameObjectsWithTag(pinTag);
+        
+        initialPinTransforms.Clear();
+        currentPins.Clear();
+
+        foreach (GameObject pin in taggedPins)
+        {
+            if (pin.activeInHierarchy)
+            {
+                initialPinTransforms.Add(new PinTransform(pin));
+                currentPins.Add(pin);
+            }
+        }
+
+        Debug.Log($"新しいステージで{currentPins.Count}本のピンを検出しました");
     }
 
     // 倒れたピンの数を数え、倒れたピンのリストを返す
@@ -41,9 +77,9 @@ public class BowlingPinManager : MonoBehaviour
     {
         List<GameObject> fallenPins = new List<GameObject>();
 
-        for (int i = 0; i < pins.Length; i++)
+        for (int i = 0; i < currentPins.Count; i++)
         {
-            var pin = pins[i];
+            var pin = currentPins[i];
 
             // 非アクティブ（すでに除去された）ピンは無視
             if (pin == null || !pin.activeSelf) continue;
@@ -51,18 +87,21 @@ public class BowlingPinManager : MonoBehaviour
             float angle = Vector3.Angle(pin.transform.up, Vector3.up);
 
             // 初期位置からの距離を計算
-            Vector3 originalPosition = initialPinTransforms[i].position;
-            float distanceFromOriginal = Vector3.Distance(pin.transform.position, originalPosition);
-
-            // 倒れた判定の条件
-            // 1. 傾きが大きい
-            // 2. コース外（Y座標が低い）
-            // 3. 初期位置から一定距離以上離れた
-            if (angle > pinDownAngle ||
-                pin.transform.position.y < -0.5f ||
-                distanceFromOriginal > maxDistanceFromOriginal)
+            if (i < initialPinTransforms.Count)
             {
-                fallenPins.Add(pin);
+                Vector3 originalPosition = initialPinTransforms[i].position;
+                float distanceFromOriginal = Vector3.Distance(pin.transform.position, originalPosition);
+
+                // 倒れた判定の条件
+                // 1. 傾きが大きい
+                // 2. コース外（Y座標が低い）
+                // 3. 初期位置から一定距離以上離れた
+                if (angle > pinDownAngle ||
+                    pin.transform.position.y < -0.5f ||
+                    distanceFromOriginal > maxDistanceFromOriginal)
+                {
+                    fallenPins.Add(pin);
+                }
             }
         }
         return fallenPins;
@@ -80,28 +119,39 @@ public class BowlingPinManager : MonoBehaviour
     // 全てのピンを初期位置に戻して復活させる（新しいフレームの開始時）
     public void ResetAllPins()
     {
+        // 現在アクティブなステージのPinTagがついているオブジェクトを検索
+        FindAndSetCurrentPins();
+
+        // 検出されたピンを初期位置にリセット
         foreach (var pinData in initialPinTransforms)
         {
             GameObject p = pinData.gameObject;
-            p.SetActive(true);
+            if (p != null)
+            {
+                p.SetActive(true);
 
-            // 物理挙動を完全に止めてから位置を戻す（重要）
-            Rigidbody rb = p.GetComponent<Rigidbody>();
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.Sleep(); // 一旦スリープさせると安定する
+                // 物理挙動を完全に止めてから位置を戻す（重要）
+                Rigidbody rb = p.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.velocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    rb.Sleep(); // 一旦スリープさせると安定する
+                }
 
-
-            p.transform.position = pinData.position;
-            p.transform.rotation = pinData.rotation;
+                p.transform.position = pinData.position;
+                p.transform.rotation = pinData.rotation;
+            }
         }
+
+        Debug.Log($"ステージのピンをリセットしました: {currentPins.Count}本");
     }
 
     // 現在残っているピンの物理挙動だけリセット（位置はずらさない）
     // 2投目の前に、揺れているピンを静止させるために使用
     public void StabilizeStandingPins()
     {
-        foreach (var pin in pins)
+        foreach (var pin in currentPins)
         {
             if (pin != null && pin.activeSelf)
             {
@@ -116,5 +166,21 @@ public class BowlingPinManager : MonoBehaviour
                 }
             }
         }
+    }
+
+    // 現在のピン数を取得するメソッド（外部から参照用）
+    // フレーム開始時の初期ピン数を返す
+    public int GetCurrentPinCount()
+    {
+        return initialPinTransforms.Count;
+    }
+    public int GetCurrentActivePinCount()
+    {
+        return currentPins.Count;
+    }
+    // 現在のピンリストを取得するメソッド（外部から参照用）
+    public List<GameObject> GetCurrentPins()
+    {
+        return new List<GameObject>(currentPins);
     }
 }

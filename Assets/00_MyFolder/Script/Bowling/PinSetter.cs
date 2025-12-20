@@ -8,6 +8,8 @@ public class PinSetter : MonoBehaviour
     [Tooltip("ピン同士の間隔（メートル） 公式は12インチ≒0.3048m")]
     public float spacing = 0.3048f;
 
+    [SerializeField] int rows = 4; // ボウリングは通常4列
+
     [ContextMenu("Generate Pins")] // コンテキストメニューから実行可能にする
     public void GeneratePins()
     {
@@ -16,8 +18,6 @@ public class PinSetter : MonoBehaviour
         {
             DestroyImmediate(transform.GetChild(0).gameObject);
         }
-
-        int rows = 4; // ボウリングは通常4列
 
         for (int row = 0; row < rows; row++)
         {
