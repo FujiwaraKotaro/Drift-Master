@@ -11,6 +11,8 @@ public class BowlingUIManager : MonoBehaviour
     // 下段：各フレームの累積スコア
     [SerializeField] private List<TMP_Text> totalScoreTexts;
 
+    [SerializeField] private BowlingPinManager pinManager;
+
     public void UpdateScoreBoard(BowlingScoreManager scoreManager)
     {
         List<int> rolls = scoreManager.Rolls;
@@ -50,7 +52,7 @@ public class BowlingUIManager : MonoBehaviour
                 {
                     int first = rolls[rollIndex];
 
-                    if (first == 10) // Strike
+                    if (first == pinManager.GetFrameMaxPinCount(f-1)) // Strike
                     {
                         text1.text = "X";
                         text2.text = "";
@@ -63,7 +65,7 @@ public class BowlingUIManager : MonoBehaviour
                         if (rollIndex + 1 < rolls.Count)
                         {
                             int second = rolls[rollIndex + 1];
-                            text2.text = (first + second == 10) ? "/" : second.ToString();
+                            text2.text = (first + second == pinManager.GetFrameMaxPinCount(f-1)) ? "/" : second.ToString();
                             rollIndex += 2;
                         }
                         else
@@ -86,7 +88,7 @@ public class BowlingUIManager : MonoBehaviour
                 if (remainingRolls >= 1)
                 {
                     int r1 = rolls[rollIndex];
-                    text1.text = (r1 == 10) ? "X" : r1.ToString();
+                    text1.text = (r1 == pinManager.GetFrameMaxPinCount(f - 1)) ? "X" : r1.ToString();
                 }
                 else text1.text = "";
 
@@ -96,9 +98,9 @@ public class BowlingUIManager : MonoBehaviour
                     int r1 = rolls[rollIndex];
                     int r2 = rolls[rollIndex + 1];
 
-                    if (r2 == 10)
+                    if (r2 == pinManager.GetFrameMaxPinCount(f - 1))
                         text2.text = "X";
-                    else if (r1 + r2 == 10 && r1 != 10)
+                    else if (r1 + r2 == pinManager.GetFrameMaxPinCount(f - 1) && r1 != pinManager.GetFrameMaxPinCount(f - 1))
                         text2.text = "/";
                     else
                         text2.text = r2.ToString();
@@ -111,9 +113,9 @@ public class BowlingUIManager : MonoBehaviour
                     int r2 = rolls[rollIndex + 1];
                     int r3 = rolls[rollIndex + 2];
 
-                    if (r3 == 10)
+                    if (r3 == pinManager.GetFrameMaxPinCount(f - 1))
                         text3.text = "X";
-                    else if (r2 + r3 == 10 && r2 != 10)
+                    else if (r2 + r3 == pinManager.GetFrameMaxPinCount(f - 1) && r2 != pinManager.GetFrameMaxPinCount(f - 1))
                         text3.text = "/";
                     else
                         text3.text = r3.ToString();
