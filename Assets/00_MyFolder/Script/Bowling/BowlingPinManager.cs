@@ -1,16 +1,21 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
-// ƒsƒ“‚Ì•¨—ŠÇ—‚ğs‚¤ƒNƒ‰ƒX
-// E“|‚ê‚½ƒsƒ“‚Ì”»’è
-// Eƒsƒ“‚Ì”z’uƒŠƒZƒbƒgi‘S•œŠˆ or c‚èƒsƒ“‚Ì‚İˆÛj
+// ãƒ”ãƒ³ã®ç‰©ç†ç®¡ç†ã‚’è¡Œã†ã‚¯ãƒ©ã‚¹
+// ãƒ»å€’ã‚ŒãŸãƒ”ãƒ³ã®åˆ¤å®š
+// ãƒ»ãƒ”ãƒ³ã®é…ç½®ãƒªã‚»ãƒƒãƒˆï¼ˆå…¨å¾©æ´» or æ®‹ã‚Šãƒ”ãƒ³ã®ã¿ç¶­æŒï¼‰
 public class BowlingPinManager : MonoBehaviour
 {
-    [SerializeField] private GameObject[] pins;    // ƒV[ƒ“ã‚Ìƒsƒ“‘S10–{
-    [SerializeField] private float pinDownAngle = 45f; // “|‚ê‚½‚Æ‚İ‚È‚·Šp“x
-    [SerializeField] private float maxDistanceFromOriginal = 3.0f; // ‰ŠúˆÊ’u‚©‚ç‚ÌÅ‘å‹–—e‹——£
+    [SerializeField] private GameObject[] pins;    // ã‚·ãƒ¼ãƒ³ä¸Šã®ãƒ”ãƒ³ï¼ˆåˆæœŸè¨­å®šç”¨ï¼‰
+    [SerializeField] private float pinDownAngle = 45f; // å€’ã‚ŒãŸã¨ã¿ãªã™è§’åº¦
+    [SerializeField] private float maxDistanceFromOriginal = 3.0f; // åˆæœŸä½ç½®ã‹ã‚‰ã®æœ€å¤§è¨±å®¹è·é›¢
 
-    // ƒsƒ“‚Ì‰ŠúˆÊ’u‚Æ‰ñ“]‚ğ‹L‰¯‚·‚é‚½‚ß‚Ì\‘¢‘Ì
+    private string pinTag = "Pin"; // ãƒ”ãƒ³ã‚’è­˜åˆ¥ã™ã‚‹ãŸã‚ã®ã‚¿ã‚°
+
+    // â­ å„ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ”ãƒ³æœ€å¤§å€¤ã‚’è¨˜éŒ²ã™ã‚‹ãƒªã‚¹ãƒˆ
+    private List<int> frameMaxPinCounts = new List<int>();
+
+    // ãƒ”ãƒ³ã®åˆæœŸä½ç½®ã¨å›è»¢ã‚’è¨˜æ†¶ã™ã‚‹ãŸã‚ã®æ§‹é€ ä½“
     private struct PinTransform
     {
         public Vector3 position;
@@ -29,14 +34,69 @@ public class BowlingPinManager : MonoBehaviour
 
     void Start()
     {
-        // ƒQ[ƒ€ŠJn‚É‘Sƒsƒ“‚Ì‰ŠúˆÊ’u‚ğ‹L‰¯‚·‚é
+        // ã‚²ãƒ¼ãƒ é–‹å§‹æ™‚ã«å…¨ãƒ”ãƒ³ã®åˆæœŸä½ç½®ã‚’è¨˜æ†¶ã™ã‚‹
+        InitializePins();
+        // åˆå›ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ”ãƒ³æ•°ã‚’è¨˜éŒ²
+        RecordCurrentFramePinCount();
+    }
+
+    // ãƒ”ãƒ³ã®åˆæœŸåŒ–å‡¦ç†
+    private void InitializePins()
+    {
+        initialPinTransforms.Clear();
+
         foreach (var pin in pins)
         {
-            initialPinTransforms.Add(new PinTransform(pin));
+            if (pin != null)
+            {
+                initialPinTransforms.Add(new PinTransform(pin));
+            }
         }
     }
 
-    // “|‚ê‚½ƒsƒ“‚Ì”‚ğ”‚¦A“|‚ê‚½ƒsƒ“‚ÌƒŠƒXƒg‚ğ•Ô‚·
+    // PinTagãŒã¤ã„ã¦ã„ã‚‹ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¤œç´¢ã—ã¦pinsé…åˆ—ã‚’æ›´æ–°
+    private void FindAndSetCurrentPins()
+    {
+        GameObject[] taggedPins = GameObject.FindGameObjectsWithTag(pinTag);
+
+        // â­ pinsé…åˆ—ã‚’æ–°ã—ãè¨­å®š
+        List<GameObject> newPinsList = new List<GameObject>();
+
+        foreach (GameObject pin in taggedPins)
+        {
+            if (pin.activeInHierarchy)
+            {
+                newPinsList.Add(pin);
+            }
+        }
+
+        // pinsé…åˆ—ã‚’æ›´æ–°
+        pins = newPinsList.ToArray();
+
+        // initialPinTransformsã‚‚æ›´æ–°
+        initialPinTransforms.Clear();
+        foreach (var pin in pins)
+        {
+            if (pin != null)
+            {
+                initialPinTransforms.Add(new PinTransform(pin));
+            }
+        }
+
+        Debug.Log($"æ–°ã—ã„ã‚¹ãƒ†ãƒ¼ã‚¸ã§{pins.Length}æœ¬ã®ãƒ”ãƒ³ã‚’æ¤œå‡ºã—ã¾ã—ãŸ");
+
+        // â­ å„ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ”ãƒ³æœ€å¤§å€¤ã‚’ãƒªã‚¹ãƒˆã«è¨˜éŒ²
+        RecordCurrentFramePinCount();
+    }
+
+    // â­ ç¾åœ¨ã®ãƒ•ãƒ¬ãƒ¼ãƒ ã®ãƒ”ãƒ³æ•°ã‚’è¨˜éŒ²
+    private void RecordCurrentFramePinCount()
+    {
+        frameMaxPinCounts.Add(pins.Length);
+        Debug.Log($"ãƒ•ãƒ¬ãƒ¼ãƒ {frameMaxPinCounts.Count}: æœ€å¤§ãƒ”ãƒ³æ•°={pins.Length}ã‚’è¨˜éŒ²ã—ã¾ã—ãŸ");
+    }
+
+    // å€’ã‚ŒãŸãƒ”ãƒ³ã®æ•°ã‚’æ•°ãˆã€å€’ã‚ŒãŸãƒ”ãƒ³ã®ãƒªã‚¹ãƒˆã‚’è¿”ã™
     public List<GameObject> CheckFallenPins()
     {
         List<GameObject> fallenPins = new List<GameObject>();
@@ -45,30 +105,33 @@ public class BowlingPinManager : MonoBehaviour
         {
             var pin = pins[i];
 
-            // ”ñƒAƒNƒeƒBƒui‚·‚Å‚Éœ‹‚³‚ê‚½jƒsƒ“‚Í–³‹
+            // éã‚¢ã‚¯ãƒ†ã‚£ãƒ–ï¼ˆã™ã§ã«é™¤å»ã•ã‚ŒãŸï¼‰ãƒ”ãƒ³ã¯ç„¡è¦–
             if (pin == null || !pin.activeSelf) continue;
 
             float angle = Vector3.Angle(pin.transform.up, Vector3.up);
 
-            // ‰ŠúˆÊ’u‚©‚ç‚Ì‹——£‚ğŒvZ
-            Vector3 originalPosition = initialPinTransforms[i].position;
-            float distanceFromOriginal = Vector3.Distance(pin.transform.position, originalPosition);
-
-            // “|‚ê‚½”»’è‚ÌğŒ
-            // 1. ŒX‚«‚ª‘å‚«‚¢
-            // 2. ƒR[ƒXŠOiYÀ•W‚ª’á‚¢j
-            // 3. ‰ŠúˆÊ’u‚©‚çˆê’è‹——£ˆÈã—£‚ê‚½
-            if (angle > pinDownAngle ||
-                pin.transform.position.y < -0.5f ||
-                distanceFromOriginal > maxDistanceFromOriginal)
+            // åˆæœŸä½ç½®ã‹ã‚‰ã®è·é›¢ã‚’è¨ˆç®—
+            if (i < initialPinTransforms.Count)
             {
-                fallenPins.Add(pin);
+                Vector3 originalPosition = initialPinTransforms[i].position;
+                float distanceFromOriginal = Vector3.Distance(pin.transform.position, originalPosition);
+
+                // å€’ã‚ŒãŸåˆ¤å®šã®æ¡ä»¶
+                // 1. å‚¾ããŒå¤§ãã„
+                // 2. ã‚³ãƒ¼ã‚¹å¤–ï¼ˆYåº§æ¨™ãŒä½ã„ï¼‰
+                // 3. åˆæœŸä½ç½®ã‹ã‚‰ä¸€å®šè·é›¢ä»¥ä¸Šé›¢ã‚ŒãŸ
+                if (angle > pinDownAngle ||
+                    pin.transform.position.y < -0.5f ||
+                    distanceFromOriginal > maxDistanceFromOriginal)
+                {
+                    fallenPins.Add(pin);
+                }
             }
         }
         return fallenPins;
     }
 
-    // w’è‚³‚ê‚½ƒŠƒXƒg‚Ìƒsƒ“‚ğ”ñ•\¦‚É‚·‚éi1“Š–Ú‚ÌŒã‚Ìˆ—‚È‚Çj
+    // æŒ‡å®šã•ã‚ŒãŸãƒªã‚¹ãƒˆã®ãƒ”ãƒ³ã‚’éè¡¨ç¤ºã«ã™ã‚‹ï¼ˆ1æŠ•ç›®ã®å¾Œã®å‡¦ç†ãªã©ï¼‰
     public void RemovePins(List<GameObject> pinsToRemove)
     {
         foreach (var pin in pinsToRemove)
@@ -77,28 +140,39 @@ public class BowlingPinManager : MonoBehaviour
         }
     }
 
-    // ‘S‚Ä‚Ìƒsƒ“‚ğ‰ŠúˆÊ’u‚É–ß‚µ‚Ä•œŠˆ‚³‚¹‚éiV‚µ‚¢ƒtƒŒ[ƒ€‚ÌŠJnj
+    // å…¨ã¦ã®ãƒ”ãƒ³ã‚’åˆæœŸä½ç½®ã«æˆ»ã—ã¦å¾©æ´»ã•ã›ã‚‹ï¼ˆæ–°ã—ã„ãƒ•ãƒ¬ãƒ¼ãƒ ã®é–‹å§‹æ™‚ï¼‰
     public void ResetAllPins()
     {
+        // ç¾åœ¨ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ãªã‚¹ãƒ†ãƒ¼ã‚¸ã®PinTagãŒã¤ã„ã¦ã„ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¤œç´¢
+        FindAndSetCurrentPins();
+
+        // æ¤œå‡ºã•ã‚ŒãŸãƒ”ãƒ³ã‚’åˆæœŸä½ç½®ã«ãƒªã‚»ãƒƒãƒˆ
         foreach (var pinData in initialPinTransforms)
         {
             GameObject p = pinData.gameObject;
-            p.SetActive(true);
+            if (p != null)
+            {
+                p.SetActive(true);
 
-            // •¨—‹““®‚ğŠ®‘S‚É~‚ß‚Ä‚©‚çˆÊ’u‚ğ–ß‚·id—vj
-            Rigidbody rb = p.GetComponent<Rigidbody>();
-            rb.velocity = Vector3.zero;
-            rb.angularVelocity = Vector3.zero;
-            rb.Sleep(); // ˆê’UƒXƒŠ[ƒv‚³‚¹‚é‚ÆˆÀ’è‚·‚é
+                // ç‰©ç†æŒ™å‹•ã‚’å®Œå…¨ã«æ­¢ã‚ã¦ã‹ã‚‰ä½ç½®ã‚’æˆ»ã™ï¼ˆé‡è¦ï¼‰
+                Rigidbody rb = p.GetComponent<Rigidbody>();
+                if (rb != null)
+                {
+                    rb.velocity = Vector3.zero;
+                    rb.angularVelocity = Vector3.zero;
+                    rb.Sleep(); // ä¸€æ—¦ã‚¹ãƒªãƒ¼ãƒ—ã•ã›ã‚‹ã¨å®‰å®šã™ã‚‹
+                }
 
-
-            p.transform.position = pinData.position;
-            p.transform.rotation = pinData.rotation;
+                p.transform.position = pinData.position;
+                p.transform.rotation = pinData.rotation;
+            }
         }
+
+        Debug.Log($"ã‚¹ãƒ†ãƒ¼ã‚¸ã®ãƒ”ãƒ³ã‚’ãƒªã‚»ãƒƒãƒˆã—ã¾ã—ãŸ: {pins.Length}æœ¬");
     }
 
-    // Œ»İc‚Á‚Ä‚¢‚éƒsƒ“‚Ì•¨—‹““®‚¾‚¯ƒŠƒZƒbƒgiˆÊ’u‚Í‚¸‚ç‚³‚È‚¢j
-    // 2“Š–Ú‚Ì‘O‚ÉA—h‚ê‚Ä‚¢‚éƒsƒ“‚ğÃ~‚³‚¹‚é‚½‚ß‚Ég—p
+    // ç¾åœ¨æ®‹ã£ã¦ã„ã‚‹ãƒ”ãƒ³ã®ç‰©ç†æŒ™å‹•ã ã‘ãƒªã‚»ãƒƒãƒˆï¼ˆä½ç½®ã¯ãšã‚‰ã•ãªã„ï¼‰
+    // 2æŠ•ç›®ã®å‰ã«ã€æºã‚Œã¦ã„ã‚‹ãƒ”ãƒ³ã‚’é™æ­¢ã•ã›ã‚‹ãŸã‚ã«ä½¿ç”¨
     public void StabilizeStandingPins()
     {
         foreach (var pin in pins)
@@ -110,11 +184,59 @@ public class BowlingPinManager : MonoBehaviour
                 {
                     rb.velocity = Vector3.zero;
                     rb.angularVelocity = Vector3.zero;
-                    // “|‚ê‚Ä‚¢‚È‚¢ƒsƒ“‚ÍA”÷–­‚É“®‚¢‚Ä‚¢‚Ä‚àŒ³‚Ì‰ñ“]‚É–ß‚·‚Æ•s©‘R‚È‚Ì‚ÅA
-                    // ‘¬“xƒ[ƒ‚É‚·‚é‚¾‚¯‚É‚Æ‚Ç‚ß‚é‚©A­‚µ‚¾‚¯•â³‚·‚é
-                    // ‚±‚±‚Å‚ÍƒVƒ“ƒvƒ‹‚É‘¬“xƒ[ƒ‰»‚Ì‚İ
+                    // å€’ã‚Œã¦ã„ãªã„ãƒ”ãƒ³ã¯ã€å¾®å¦™ã«å‹•ã„ã¦ã„ã¦ã‚‚å…ƒã®å›è»¢ã«æˆ»ã™ã¨ä¸è‡ªç„¶ãªã®ã§ã€
+                    // é€Ÿåº¦ã‚¼ãƒ­ã«ã™ã‚‹ã ã‘ã«ã¨ã©ã‚ã‚‹ã‹ã€å°‘ã—ã ã‘è£œæ­£ã™ã‚‹
+                    // ã“ã“ã§ã¯ã‚·ãƒ³ãƒ—ãƒ«ã«é€Ÿåº¦ã‚¼ãƒ­åŒ–ã®ã¿
                 }
             }
         }
+    }
+
+    // ç¾åœ¨ã®ãƒ”ãƒ³æ•°ã‚’å–å¾—ã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ï¼ˆå¤–éƒ¨ã‹ã‚‰å‚ç…§ç”¨ï¼‰
+    // ãƒ•ãƒ¬ãƒ¼ãƒ é–‹å§‹æ™‚ã®åˆæœŸãƒ”ãƒ³æ•°ã‚’è¿”ã™
+    public int GetCurrentPinCount()
+    {
+        return initialPinTransforms.Count;
+    }
+
+    public int GetCurrentActivePinCount()
+    {
+        int activeCount = 0;
+        foreach (var pin in pins)
+        {
+            if (pin != null && pin.activeSelf)
+            {
+                activeCount++;
+            }
+        }
+        return activeCount;
+    }
+
+    // ç¾åœ¨ã®ãƒ”ãƒ³ãƒªã‚¹ãƒˆã‚’å–å¾—ã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ï¼ˆå¤–éƒ¨ã‹ã‚‰å‚ç…§ç”¨ï¼‰
+    public List<GameObject> GetCurrentPins()
+    {
+        return new List<GameObject>(pins);
+    }
+
+    // â­ æŒ‡å®šãƒ•ãƒ¬ãƒ¼ãƒ ã®æœ€å¤§ãƒ”ãƒ³æ•°ã‚’å–å¾—
+    public int GetFrameMaxPinCount(int frameIndex)
+    {
+        if (frameIndex >= 0 && frameIndex < frameMaxPinCounts.Count)
+        {
+            return frameMaxPinCounts[frameIndex];
+        }
+        return 10; // ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆå€¤
+    }
+
+    // â­ ã‚²ãƒ¼ãƒ ãƒªã‚»ãƒƒãƒˆæ™‚ã«ãƒ”ãƒ³æ•°å±¥æ­´ã‚‚ã‚¯ãƒªã‚¢
+    public void ResetFramePinCounts()
+    {
+        frameMaxPinCounts.Clear();
+    }
+
+    // â­ ãƒ•ãƒ¬ãƒ¼ãƒ æ•°ã‚’å–å¾—
+    public int GetFrameCount()
+    {
+        return frameMaxPinCounts.Count;
     }
 }

@@ -1,19 +1,21 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 // ロジック担当：スコア計算とゲーム状態の管理
 // 「現在何フレーム目か？」「次はピンをリセットすべきか？」をすべて履歴(rolls)から都度計算する
 public class BowlingScoreManager : MonoBehaviour
 {
+    [Header("Game Settings")]
+    [SerializeField] private int totalFrames = 10; // フレーム数を可変にする
+    public int TotalFrames => totalFrames;
+
     [SerializeField] private BowlingUIManager uiManager;
+    [SerializeField] private BowlingPinManager pinManager;
 
     // 唯一の「正解」データ (Single Source of Truth)
     private List<int> rolls = new List<int>();
     public List<int> Rolls => rolls;
-
-    // 投球ごとのアイテム倍率を記録（投球と同じ数だけ記録される）
-    private List<int> rollMultipliers = new List<int>();
-    public List<int> RollMultipliers => rollMultipliers;
 
     // Directorに「次にピンをどう操作すべきか」を伝えるための列挙型
     public enum NextPinAction
@@ -36,14 +38,19 @@ public class BowlingScoreManager : MonoBehaviour
     {
         rolls.Add(pinsDown);
 
-        // 投球時のアイテム倍率を記録
-        GetItem getItemScript = FindObjectOfType<GetItem>();
-        int currentMultiplier = getItemScript.number_getItem;
-        rollMultipliers.Add(currentMultiplier);
-
-        Debug.Log($"投球記録: ピン={pinsDown}, 倍率=x{currentMultiplier}");
+        Debug.Log($"投球記録: ピン={pinsDown}");
 
         uiManager.UpdateScoreBoard(this); // データ更新したら即UI反映
+    }
+
+    // フレーム数を動的に設定するメソッド
+    public void SetTotalFrames(int frames)
+    {
+        if (frames > 0)
+        {
+            totalFrames = frames;
+            Debug.Log($"総フレーム数を{frames}に変更しました");
+        }
     }
 
     // --- 計算ロジック ---
@@ -54,8 +61,8 @@ public class BowlingScoreManager : MonoBehaviour
         int rollIndex = 0;
         int frame = 1;
 
-        // 1〜9フレームのシミュレーション
-        for (; frame < 10; frame++)
+        // 1〜(最終フレーム-1)のシミュレーション
+        for (; frame < totalFrames; frame++)
         {
             if (rollIndex >= rolls.Count)
             {
@@ -64,7 +71,7 @@ public class BowlingScoreManager : MonoBehaviour
 
             int first = rolls[rollIndex];
 
-            if (first == 10) // Strike
+            if (first == pinManager.GetFrameMaxPinCount(frame-1)) // Strike
             {
                 rollIndex++;
                 if (rollIndex >= rolls.Count)
@@ -79,45 +86,45 @@ public class BowlingScoreManager : MonoBehaviour
             }
         }
 
-        // 10フレーム目の処理
-        if (frame == 10)
+        // 最終フレームの処理
+        if (frame == totalFrames)
         {
             if (rollIndex >= rolls.Count)
                 return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
 
-            int throwsIn10th = rolls.Count - rollIndex;
+            int throwsInFinalFrame = rolls.Count - rollIndex;
 
             // 1投目を投げた直後
-            if (throwsIn10th == 1)
+            if (throwsInFinalFrame == 1)
             {
                 int first = rolls[rollIndex];
                 return new GameStatus
                 {
                     IsGameOver = false,
-                    NextAction = (first == 10) ? NextPinAction.ResetAll : NextPinAction.RemoveFallen
+                    NextAction = (first == pinManager.GetFrameMaxPinCount(frame-1)) ? NextPinAction.ResetAll : NextPinAction.RemoveFallen
                 };
             }
             // 2投目を投げた直後
-            else if (throwsIn10th == 2)
+            else if (throwsInFinalFrame == 2)
             {
                 int first = rolls[rollIndex];
                 int second = rolls[rollIndex + 1];
 
                 // 終了判定: オープンフレームなら終了
-                if (first + second < 10 && first != 10)
+                if (first + second < pinManager.GetFrameMaxPinCount(frame-1) && first != pinManager.GetFrameMaxPinCount(frame-1))
                     return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
 
                 // 3投目がある場合
-                if (first + second == 10)
+                if (first + second == pinManager.GetFrameMaxPinCount(frame-1))
                     return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
 
-                if (first == 10 && second == 10)
+                if (first == pinManager.GetFrameMaxPinCount(frame-1) && second == pinManager.GetFrameMaxPinCount(frame-1))
                     return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
 
                 return new GameStatus { IsGameOver = false, NextAction = NextPinAction.RemoveFallen };
             }
             // 3投目を投げた直後
-            else if (throwsIn10th == 3)
+            else if (throwsInFinalFrame == 3)
             {
                 return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
             }
@@ -126,33 +133,31 @@ public class BowlingScoreManager : MonoBehaviour
         return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
     }
 
-    // UI用のスコア計算（投球ごとのアイテム倍率を適用）
+    // UI用のスコア計算（標準的なボウリングルールに従う）
     public int[] GetCumulativeScores()
     {
-        int[] frameScores = new int[10];
-        for (int i = 0; i < 10; i++) frameScores[i] = -1;
+        int[] frameScores = new int[totalFrames];
+        for (int i = 0; i < totalFrames; i++) frameScores[i] = -1;
 
         int runningTotal = 0;
         int rollIndex = 0;
 
-        for (int f = 0; f < 10; f++)
+        for (int f = 0; f < totalFrames; f++)
         {
             if (rollIndex >= rolls.Count) break;
 
             int currentFrameScore = -1;
             int advance = 0;
 
-            if (f == 9) // 10フレーム
+            if (f == totalFrames - 1) // 最終フレーム
             {
                 int sum = 0;
                 int throws = 0;
 
-                // 10フレームは投球ごとに倍率を適用
+                // 最終フレームは全投球の合計
                 for (int i = 0; rollIndex + i < rolls.Count && i < 3; i++)
                 {
-                    int pins = rolls[rollIndex + i];
-                    int multiplier = (rollIndex + i < rollMultipliers.Count) ? rollMultipliers[rollIndex + i] : 1;
-                    sum += pins * multiplier;
+                    sum += rolls[rollIndex + i];
                     throws++;
                 }
 
@@ -164,24 +169,16 @@ public class BowlingScoreManager : MonoBehaviour
                 if (isFrameFinished) currentFrameScore = sum;
                 advance = throws;
             }
-            else // 1-9フレーム
+            else // 通常フレーム
             {
-                if (rolls[rollIndex] == 10) // Strike
+                if (rolls[rollIndex] == pinManager.GetFrameMaxPinCount(f)) // Strike
                 {
                     if (rollIndex + 2 < rolls.Count)
                     {
-                        // ストライク: 10×M1 + 次1投×M2 + 次2投×M3
-                        int pins1 = 10;
-                        int pins2 = rolls[rollIndex + 1];
-                        int pins3 = rolls[rollIndex + 2];
+                        // ストライク: 10 + 次の2投の合計
+                        currentFrameScore = pinManager.GetFrameMaxPinCount(f) + rolls[rollIndex + 1] + rolls[rollIndex + 2];
 
-                        int mult1 = (rollIndex < rollMultipliers.Count) ? rollMultipliers[rollIndex] : 1;
-                        int mult2 = (rollIndex + 1 < rollMultipliers.Count) ? rollMultipliers[rollIndex + 1] : 1;
-                        int mult3 = (rollIndex + 2 < rollMultipliers.Count) ? rollMultipliers[rollIndex + 2] : 1;
-
-                        currentFrameScore = (pins1 * mult1) + (pins2 * mult2) + (pins3 * mult3);
-
-                        Debug.Log($"フレーム{f + 1} ストライク: ({pins1}×{mult1})+({pins2}×{mult2})+({pins3}×{mult3})={currentFrameScore}");
+                        Debug.Log($"フレーム{f + 1} ストライク: 10+{rolls[rollIndex + 1]}+{rolls[rollIndex + 2]}={currentFrameScore}");
                     }
                     advance = 1;
                 }
@@ -190,30 +187,22 @@ public class BowlingScoreManager : MonoBehaviour
                     int first = rolls[rollIndex];
                     int second = rolls[rollIndex + 1];
 
-                    if (first + second == 10) // Spare
+                    if (first + second == pinManager.GetFrameMaxPinCount(f)) // Spare
                     {
                         if (rollIndex + 2 < rolls.Count)
                         {
-                            // スペア: 1投目×M1 + 2投目×M2 + 次1投×M3
-                            int mult1 = (rollIndex < rollMultipliers.Count) ? rollMultipliers[rollIndex] : 1;
-                            int mult2 = (rollIndex + 1 < rollMultipliers.Count) ? rollMultipliers[rollIndex + 1] : 1;
-                            int mult3 = (rollIndex + 2 < rollMultipliers.Count) ? rollMultipliers[rollIndex + 2] : 1;
-                            int next = rolls[rollIndex + 2];
+                            // スペア: 10 + 次の1投
+                            currentFrameScore = pinManager.GetFrameMaxPinCount(f) + rolls[rollIndex + 2];
 
-                            currentFrameScore = (first * mult1) + (second * mult2) + (next * mult3);
-
-                            Debug.Log($"フレーム{f + 1} スペア: ({first}×{mult1})+({second}×{mult2})+({next}×{mult3})={currentFrameScore}");
+                            Debug.Log($"フレーム{f + 1} スペア: {first}+{second}+{rolls[rollIndex + 2]}={currentFrameScore}");
                         }
                     }
                     else // Open
                     {
-                        // オープン: 1投目×M1 + 2投目×M2
-                        int mult1 = (rollIndex < rollMultipliers.Count) ? rollMultipliers[rollIndex] : 1;
-                        int mult2 = (rollIndex + 1 < rollMultipliers.Count) ? rollMultipliers[rollIndex + 1] : 1;
+                        // オープン: 2投の合計
+                        currentFrameScore = first + second;
 
-                        currentFrameScore = (first * mult1) + (second * mult2);
-
-                        Debug.Log($"フレーム{f + 1} オープン: ({first}×{mult1})+({second}×{mult2})={currentFrameScore}");
+                        Debug.Log($"フレーム{f + 1} オープン: {first}+{second}={currentFrameScore}");
                     }
                     advance = 2;
                 }

@@ -8,6 +8,7 @@ public class GetItem : MonoBehaviour
 {
     Rigidbody m_Rigidbody;
     [SerializeField] private float initialForceStrength = 30000f; // 質量1500に適した力
+    [SerializeField] private float sizeMultiplier = 1.2f; //アイテム取得時のサイズUP倍率
 
     public int number_getItem = 1;
 
@@ -32,6 +33,17 @@ public class GetItem : MonoBehaviour
             m_Rigidbody.AddForce(transform.forward * initialForceStrength, ForceMode.Impulse);
             number_getItem++;
 
+            // 現在のサイズと位置を保存
+            Vector3 currentScale = transform.localScale;
+            Vector3 currentPosition = transform.position;
+
+            // 車のサイズを更新
+            transform.localScale = currentScale * sizeMultiplier;
+
+            // サイズ増加分だけY座標を上に移動（地面に埋まらないように）
+            float sizeIncrease = (sizeMultiplier - 1.0f) * currentScale.y;
+            transform.position = new Vector3(currentPosition.x, currentPosition.y + sizeIncrease, currentPosition.z);
+
             SoundManager.Instance.PlaySE("SpeedUpSE");
             // スコアUI演出を開始
             ShowScoreUI();
@@ -48,7 +60,7 @@ public class GetItem : MonoBehaviour
         CanvasGroup canvasGroup = scoreUIInstance.GetComponent<CanvasGroup>();
 
         // TMPテキストにスコアを設定
-        scoreText.text = "スピードUP\nスコア×" + number_getItem.ToString();
+        scoreText.text = "スピードUP\nサイズUP";
 
         // 初期状態を設定
         canvasGroup.alpha = 1f;

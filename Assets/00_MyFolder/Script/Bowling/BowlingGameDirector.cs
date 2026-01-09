@@ -11,7 +11,6 @@ public class BowlingGameDirector : MonoBehaviour
     [SerializeField] private BowlingScoreManager scoreManager;
     [SerializeField] private BowlingPinManager pinManager;
 
-
     [Header("Game Objects")]
     [SerializeField] private Transform car;
     [SerializeField] private Rigidbody carRb;
@@ -23,6 +22,10 @@ public class BowlingGameDirector : MonoBehaviour
 
     private Vector3 carStartPos;
     private Quaternion carStartRot;
+
+    // ステージ管理
+    [SerializeField] private List<GameObject> stages = new List<GameObject>();
+    private int currentStageIndex = 0;
 
     // 状態管理用のフラグ
     public bool isJudging = false;      // 判定中かどうか
@@ -55,7 +58,6 @@ public class BowlingGameDirector : MonoBehaviour
         // --- 発射待ちの処理 ---
         if (isReadyToThrow)
         {
-
             // スペースキーが押されたら発射
             if (Input.GetKeyDown(KeyCode.Space) && GameStart.gameStarted)
             {
@@ -64,7 +66,6 @@ public class BowlingGameDirector : MonoBehaviour
             // 発射待ちの間は、これ以降の処理（ゴール判定など）を行わせない
             return;
         }
-
     }
 
     private void ShootCar()
@@ -74,7 +75,6 @@ public class BowlingGameDirector : MonoBehaviour
 
         SpaceKeyGuideUI.SetActive(false);
     }
-
 
     public IEnumerator ProcessThrowResult()
     {
@@ -104,6 +104,9 @@ public class BowlingGameDirector : MonoBehaviour
             switch (status.NextAction)
             {
                 case BowlingScoreManager.NextPinAction.ResetAll:
+                    // ステージを次に進める
+                    ChangeToNextStage();
+
                     pinManager.ResetAllPins();
                     Debug.Log("Reset All Pins");
                     break;
@@ -123,9 +126,24 @@ public class BowlingGameDirector : MonoBehaviour
             mainCamera.rotation = Quaternion.Euler(20f, 0f, 0f);
         }
 
-
         FindObjectOfType<GetItem>().number_getItem = 1;
         isJudging = false;
+    }
+
+    private void ChangeToNextStage()
+    {
+        if (stages.Count == 0) return;
+
+        // 現在のステージを非アクティブにする
+        stages[currentStageIndex].SetActive(false);
+
+        // 次のステージに進む（最後のステージの場合は最初に戻る）
+        currentStageIndex = (currentStageIndex + 1) % stages.Count;
+
+        // 新しいステージをアクティブにする
+        stages[currentStageIndex].SetActive(true);
+
+        Debug.Log($"ステージを変更: Stage{currentStageIndex + 1}がアクティブになりました");
     }
 
     private void ResetCar()
@@ -137,6 +155,9 @@ public class BowlingGameDirector : MonoBehaviour
         // 物理挙動を完全に止める
         carRb.velocity = Vector3.zero;
         carRb.angularVelocity = Vector3.zero;
+
+        //サイズをもとに戻す
+        car.transform.localScale = Vector3.one;
 
         // KinematicをONにして、物理的に「固定」する ---
         carRb.isKinematic = true;
