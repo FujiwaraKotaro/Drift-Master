@@ -3,26 +3,26 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class ArcadeCarController : MonoBehaviour
 {
-    [Header("Ô‚Ìİ’è")]
-    [Tooltip("Å‚‘¬“x")]
+    [Header("è»Šã®è¨­å®š")]
+    [Tooltip("æœ€é«˜é€Ÿåº¦")]
     public float maxSpeed = 30f;
-    [Tooltip("‰Á‘¬—Í")]
+    [Tooltip("åŠ é€ŸåŠ›")]
     public float acceleration = 50f;
-    [Tooltip("ù‰ñ«”\i‚‚¢‚Ù‚Ç‹}‚É‹È‚ª‚éj")]
-    public float baseTurnSpeed = 100f; // Šî–{ù‰ñ‘¬“x
+    [Tooltip("æ—‹å›æ€§èƒ½ï¼ˆé«˜ã„ã»ã©æ€¥ã«æ›²ãŒã‚‹ï¼‰")]
+    public float baseTurnSpeed = 100f; // åŸºæœ¬æ—‹å›é€Ÿåº¦
 
-    [Header("‘¬“x•Êù‰ñİ’è")]
-    [Tooltip("200km/h‚Ìù‰ñ‘¬“x")]
+    [Header("é€Ÿåº¦åˆ¥æ—‹å›è¨­å®š")]
+    [Tooltip("200km/hæ™‚ã®æ—‹å›é€Ÿåº¦")]
     public float turnSpeedAt200kmh = 70f;
-    [Tooltip("350km/hˆÈã‚Ìù‰ñ‘¬“x")]
+    [Tooltip("350km/hä»¥ä¸Šæ™‚ã®æ—‹å›é€Ÿåº¦")]
     public float turnSpeedAt350kmh = 100f;
 
-    [Header("dS’²®")]
-    [Tooltip("“]“|–h~‚Ì‚½‚ßdS‚ğ‰º‚°‚éƒIƒtƒZƒbƒg’l")]
+    [Header("é‡å¿ƒèª¿æ•´")]
+    [Tooltip("è»¢å€’é˜²æ­¢ã®ãŸã‚é‡å¿ƒã‚’ä¸‹ã’ã‚‹ã‚ªãƒ•ã‚»ãƒƒãƒˆå€¤")]
     public float centerOfMassOffset = -1.0f;
 
-    [Header("WallÕ“Ëİ’è")]
-    [Tooltip("WallÕ“Ë‚Ì‰ñ“]‘¬“x")]
+    [Header("Wallè¡çªè¨­å®š")]
+    [Tooltip("Wallè¡çªæ™‚ã®å›è»¢é€Ÿåº¦")]
     public float wallAlignmentSpeed = 5f;
 
     public LayerMask groundLayer;
@@ -31,14 +31,14 @@ public class ArcadeCarController : MonoBehaviour
     private Rigidbody rb;
     private float moveInput;
     private float turnInput;
-    private float currentTurnSpeed; // “®“I‚ÉŒvZ‚³‚ê‚éù‰ñ‘¬“x
+    private float currentTurnSpeed; // å‹•çš„ã«è¨ˆç®—ã•ã‚Œã‚‹æ—‹å›é€Ÿåº¦
 
     private bool BGMflag = true;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        // dS‚ğ‹­§“I‚É‰º‚°‚Ä“]“|‚µ‚É‚­‚­‚·‚é
+        // é‡å¿ƒã‚’å¼·åˆ¶çš„ã«ä¸‹ã’ã¦è»¢å€’ã—ã«ããã™ã‚‹
         rb.centerOfMass = new Vector3(0, centerOfMassOffset, 0);
     }
 
@@ -55,63 +55,63 @@ public class ArcadeCarController : MonoBehaviour
             SoundManager.Instance.StopBGM();
             BGMflag = true;
         }
-        // “ü—Í‚Ìæ“¾i©“®is‚È‚Ì‚ÅƒAƒNƒZƒ‹‚Íí‚É1AƒuƒŒ[ƒL‚È‚µj
-        // •K—v‚È‚ç Input.GetAxis("Vertical") ‚ğ‘«‚µ‚Ä‚­‚¾‚³‚¢
+        // å…¥åŠ›ã®å–å¾—ï¼ˆè‡ªå‹•é€²è¡Œãªã®ã§ã‚¢ã‚¯ã‚»ãƒ«ã¯å¸¸ã«1ã€ãƒ–ãƒ¬ãƒ¼ã‚­ãªã—ï¼‰
+        // å¿…è¦ãªã‚‰ Input.GetAxis("Vertical") ã‚’è¶³ã—ã¦ãã ã•ã„
         moveInput = 1.0f;
-        turnInput = Input.GetAxis("Horizontal"); // A/D ‚Ü‚½‚Í –îˆó¶‰E
+        turnInput = Input.GetAxis("Horizontal"); // A/D ã¾ãŸã¯ çŸ¢å°å·¦å³
 
-        // ‘¬“x‚É‰‚¶‚½ù‰ñ‘¬“x‚ğŒvZ
+        // é€Ÿåº¦ã«å¿œã˜ãŸæ—‹å›é€Ÿåº¦ã‚’è¨ˆç®—
         UpdateTurnSpeed();
     }
 
     void FixedUpdate()
     {
-        if (CheckGround()@&& !rb.isKinematic) // y’Ç‰Áz‚à‚µ’n–Ê‚É‚Â‚¢‚Ä‚¢‚½‚ç...
+        if (CheckGround()ã€€&& !rb.isKinematic) // ã€è¿½åŠ ã€‘ã‚‚ã—åœ°é¢ã«ã¤ã„ã¦ã„ãŸã‚‰...
         {
-            Move();      // ‘–‚é
-            Turn();      // ‹È‚ª‚é
-            ApplyGrip(); // ƒOƒŠƒbƒv‚·‚é
+            Move();      // èµ°ã‚‹
+            Turn();      // æ›²ãŒã‚‹
+            ApplyGrip(); // ã‚°ãƒªãƒƒãƒ—ã™ã‚‹
         }
     }
 
-    // ‘¬“x‚É‰‚¶‚Äù‰ñ‘¬“x‚ğXV
+    // é€Ÿåº¦ã«å¿œã˜ã¦æ—‹å›é€Ÿåº¦ã‚’æ›´æ–°
     private void UpdateTurnSpeed()
     {
-        // Œ»İ‚Ì‘¬“x‚ğkm/h‚Åæ“¾
+        // ç¾åœ¨ã®é€Ÿåº¦ã‚’km/hã§å–å¾—
         float currentSpeedKmh = rb.velocity.magnitude * 3.6f;
 
         if (currentSpeedKmh <= 200f)
         {
-            // 200km/hˆÈ‰º‚Ìê‡AüŒ`•âŠÔ‚Åù‰ñ‘¬“x‚ğŒvZ
+            // 200km/hä»¥ä¸‹ã®å ´åˆã€ç·šå½¢è£œé–“ã§æ—‹å›é€Ÿåº¦ã‚’è¨ˆç®—
             currentTurnSpeed = Mathf.Lerp(baseTurnSpeed, turnSpeedAt200kmh, currentSpeedKmh / 200f);
         }
         else if (currentSpeedKmh >= 350f)
         {
-            // 350km/hˆÈã‚Ìê‡
+            // 350km/hä»¥ä¸Šã®å ´åˆ
             currentTurnSpeed = turnSpeedAt350kmh;
         }
         else
         {
-            // 200km/h`350km/h‚ÌŠÔ‚Ìê‡AüŒ`•âŠÔ
+            // 200km/hï½350km/hã®é–“ã®å ´åˆã€ç·šå½¢è£œé–“
             float t = (currentSpeedKmh - 200f) / (350f - 200f);
             currentTurnSpeed = Mathf.Lerp(turnSpeedAt200kmh, turnSpeedAt350kmh, t);
         }
     }
 
-    // 1. ©“®‘Oi
+    // 1. è‡ªå‹•å‰é€²
     void Move()
     {
-        // Å‚‘¬“xˆÈ‰º‚È‚ç‰Á‘¬—Í‚ğ‰Á‚¦‚é
+        // æœ€é«˜é€Ÿåº¦ä»¥ä¸‹ãªã‚‰åŠ é€ŸåŠ›ã‚’åŠ ãˆã‚‹
         if (rb.velocity.magnitude < maxSpeed)
         {
             rb.AddForce(transform.forward * moveInput * acceleration, ForceMode.Acceleration);
         }
     }
 
-    // 2. ù‰ñi•¨—‰‰Z‚Å‚Í‚È‚­‰ñ“]‚ğ’¼Ú‘€ìj
+    // 2. æ—‹å›ï¼ˆç‰©ç†æ¼”ç®—ã§ã¯ãªãå›è»¢ã‚’ç›´æ¥æ“ä½œï¼‰
     void Turn()
     {
-        // ’â~’†‚Í‰ñ‚ç‚È‚¢‚æ‚¤‚É‚·‚éi­‚µ“®‚¢‚Ä‚¢‚ê‚Î‰ñ‚ê‚éj
+        // åœæ­¢ä¸­ã¯å›ã‚‰ãªã„ã‚ˆã†ã«ã™ã‚‹ï¼ˆå°‘ã—å‹•ã„ã¦ã„ã‚Œã°å›ã‚Œã‚‹ï¼‰
         if (rb.velocity.magnitude > 0.1f)
         {
             float turn = turnInput * currentTurnSpeed * Time.fixedDeltaTime;
@@ -120,27 +120,27 @@ public class ArcadeCarController : MonoBehaviour
         }
     }
 
-    // 3. Š®‘SƒOƒŠƒbƒvˆ—i‰¡ŠŠ‚è‚ğŠ®‘S‚ÉÁ‹j
+    // 3. å®Œå…¨ã‚°ãƒªãƒƒãƒ—å‡¦ç†ï¼ˆæ¨ªæ»‘ã‚Šã‚’å®Œå…¨ã«æ¶ˆå»ï¼‰
     void ApplyGrip()
     {
-        // Œ»İ‚Ì‘¬“xƒxƒNƒgƒ‹‚ğuis•ûŒü¬•ªv‚Æu‰¡•ûŒü¬•ªv‚É•ª‰ğ
+        // ç¾åœ¨ã®é€Ÿåº¦ãƒ™ã‚¯ãƒˆãƒ«ã‚’ã€Œé€²è¡Œæ–¹å‘æˆåˆ†ã€ã¨ã€Œæ¨ªæ–¹å‘æˆåˆ†ã€ã«åˆ†è§£
         Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
 
-        // ‰¡•ûŒü‚Ì‘¬“xi‰¡ŠŠ‚èj‚ğŠ®‘S‚ÉÁ‹
+        // æ¨ªæ–¹å‘ã®é€Ÿåº¦ï¼ˆæ¨ªæ»‘ã‚Šï¼‰ã‚’å®Œå…¨ã«æ¶ˆå»
         localVelocity.x = 0f;
 
-        // •â³‚µ‚½‘¬“x‚ğƒ[ƒ‹ƒhÀ•W‚É–ß‚µ‚Ä“K—p
+        // è£œæ­£ã—ãŸé€Ÿåº¦ã‚’ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã«æˆ»ã—ã¦é©ç”¨
         rb.velocity = transform.TransformDirection(localVelocity);
     }
 
-    // Œ©‚¦‚È‚¢ƒŒ[ƒU[‚ğ‰º‚É”ò‚Î‚µ‚Ä’n–Ê‚ğ’T‚·‹@”\
+    // è¦‹ãˆãªã„ãƒ¬ãƒ¼ã‚¶ãƒ¼ã‚’ä¸‹ã«é£›ã°ã—ã¦åœ°é¢ã‚’æ¢ã™æ©Ÿèƒ½
     private bool CheckGround()
     {
-        // ©•ª‚ÌˆÊ’u‚©‚çA‰º•ûŒü(-transform.up)‚ÉArayLength‚Ì’·‚³‚¾‚¯ü‚ğ”ò‚Î‚·
+        // è‡ªåˆ†ã®ä½ç½®ã‹ã‚‰ã€ä¸‹æ–¹å‘(-transform.up)ã«ã€rayLengthã®é•·ã•ã ã‘ç·šã‚’é£›ã°ã™
         return Physics.Raycast(transform.position, -transform.up, rayLength * transform.localScale.x, groundLayer);
     }
 
-    // WallÕ“Ë‚Ìˆ—
+    // Wallè¡çªæ™‚ã®å‡¦ç†
     private void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Wall"))
@@ -151,24 +151,24 @@ public class ArcadeCarController : MonoBehaviour
 
     private void AlignWithWall(Collider wallCollider)
     {
-        // Œ»İ‚Ì‘¬“x‚ğ•Û‘¶
+        // ç¾åœ¨ã®é€Ÿåº¦ã‚’ä¿å­˜
         Vector3 currentVelocity = rb.velocity;
         float currentSpeed = currentVelocity.magnitude;
 
-        // Ô‚©‚çWallƒIƒuƒWƒFƒNƒg‚Ö‚Ì•ûŒü‚ğŒvZ
+        // è»Šã‹ã‚‰Wallã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã¸ã®æ–¹å‘ã‚’è¨ˆç®—
         Vector3 directionToWall = (wallCollider.transform.position - transform.position).normalized;
 
-        // WallƒIƒuƒWƒFƒNƒg‚ÌŒü‚«‚ğŠî‚É‚µ‚½•Às•ûŒü‚ğŒvZ
-        // WallƒIƒuƒWƒFƒNƒg‚Ì‘O•ûŒü‚Ü‚½‚Íright•ûŒü‚ğg—p
+        // Wallã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å‘ãã‚’åŸºã«ã—ãŸä¸¦è¡Œæ–¹å‘ã‚’è¨ˆç®—
+        // Wallã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®å‰æ–¹å‘ã¾ãŸã¯rightæ–¹å‘ã‚’ä½¿ç”¨
         Vector3 wallDirection = wallCollider.transform.forward;
 
-        // Œ»İ‚Ìis•ûŒü‚Æ•Ç‚Ì•ûŒü‚Ì“àÏ‚ÅA‚Ç‚¿‚çŒü‚«‚ª“KØ‚©‚ğ”»’è
+        // ç¾åœ¨ã®é€²è¡Œæ–¹å‘ã¨å£ã®æ–¹å‘ã®å†…ç©ã§ã€ã©ã¡ã‚‰å‘ããŒé©åˆ‡ã‹ã‚’åˆ¤å®š
         if (Vector3.Dot(currentVelocity.normalized, wallDirection) < 0)
         {
             wallDirection = -wallDirection;
         }
 
-        // ‚æ‚è“KØ‚È•ûŒü‚ğ‘I‘ğ‚·‚é‚½‚ßAwall‚Ìright•ûŒü‚àl—¶
+        // ã‚ˆã‚Šé©åˆ‡ãªæ–¹å‘ã‚’é¸æŠã™ã‚‹ãŸã‚ã€wallã®rightæ–¹å‘ã‚‚è€ƒæ…®
         Vector3 wallRightDirection = wallCollider.transform.right;
         if (Vector3.Dot(currentVelocity.normalized, wallRightDirection) > Vector3.Dot(currentVelocity.normalized, wallDirection))
         {
@@ -179,13 +179,13 @@ public class ArcadeCarController : MonoBehaviour
             wallDirection = -wallRightDirection;
         }
 
-        // •Ç‚Æ•Às‚É‚È‚é‰ñ“]‚ğŒvZ
+        // å£ã¨ä¸¦è¡Œã«ãªã‚‹å›è»¢ã‚’è¨ˆç®—
         Quaternion targetRotation = Quaternion.LookRotation(wallDirection);
 
-        // ‘¦À‚É‰ñ“]‚ğ“K—piŠŠ‚ç‚©‚É‚µ‚½‚¢ê‡‚ÍLerp‚ğg—pj
+        // å³åº§ã«å›è»¢ã‚’é©ç”¨ï¼ˆæ»‘ã‚‰ã‹ã«ã—ãŸã„å ´åˆã¯Lerpã‚’ä½¿ç”¨ï¼‰
         transform.rotation = targetRotation;
 
-        // ‘¬“x‚ğ•Ç‚Æ•Às‚È•ûŒü‚ÉŒü‚¯’¼‚µA‘¬“x‚ÍˆÛ
+        // é€Ÿåº¦ã‚’å£ã¨ä¸¦è¡Œãªæ–¹å‘ã«å‘ã‘ç›´ã—ã€é€Ÿåº¦ã¯ç¶­æŒ
         rb.velocity = wallDirection * currentSpeed;
 
         Debug.Log($"Wall trigger detected! Aligned with wall direction: {wallDirection}");

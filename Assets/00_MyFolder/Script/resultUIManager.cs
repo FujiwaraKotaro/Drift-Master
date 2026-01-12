@@ -11,7 +11,6 @@ public class resultUIManager: MonoBehaviour
     [SerializeField] private GameObject scoreBoard;
     [SerializeField] private GameObject resultUI;
     [SerializeField] private GameObject mainUI;
-    [SerializeField] private GameObject subCamera;
 
     private RectTransform rectTransform;
 
@@ -38,7 +37,5 @@ public class resultUIManager: MonoBehaviour
         // サイズを大きく
         rectTransform.DOSizeDelta(enlargedSize, duration).SetEase(Ease.OutCubic);
         resultUI.SetActive(true);
-
-        subCamera.SetActive(false);
     }
 }

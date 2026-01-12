@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// ƒQ[ƒ€‘S‘Ì‚ÌisŠÇ—ƒNƒ‰ƒX
-// Manager‚Éó‹µ”»’f‚ğˆÏ÷‚µA•Ô‚Á‚Ä‚«‚½w¦‚É]‚Á‚Äƒsƒ“‚âÔ‚ğ‘€ì‚·‚é
+// ã‚²ãƒ¼ãƒ å…¨ä½“ã®é€²è¡Œç®¡ç†ã‚¯ãƒ©ã‚¹
+// Managerã«çŠ¶æ³åˆ¤æ–­ã‚’å§”è­²ã—ã€è¿”ã£ã¦ããŸæŒ‡ç¤ºã«å¾“ã£ã¦ãƒ”ãƒ³ã‚„è»Šã‚’æ“ä½œã™ã‚‹
 public class BowlingGameDirector : MonoBehaviour
 {
     [Header("Manager References")]
@@ -17,33 +17,79 @@ public class BowlingGameDirector : MonoBehaviour
     [SerializeField] private Transform mainCamera;
     [SerializeField] private float waitTimeSeconds = 3f;
 
-    [Header("ƒXƒy[ƒXƒL[ƒKƒCƒhUI")]
+    [Header("ã‚¹ãƒšãƒ¼ã‚¹ã‚­ãƒ¼ã‚¬ã‚¤ãƒ‰UI")]
     [SerializeField] private GameObject SpaceKeyGuideUI;
 
     private Vector3 carStartPos;
     private Quaternion carStartRot;
 
-    // ƒXƒe[ƒWŠÇ—
+    // ã‚¹ãƒ†ãƒ¼ã‚¸ç®¡ç†
     [SerializeField] private List<GameObject> stages = new List<GameObject>();
+    // SubCameraç®¡ç†ï¼ˆå„ã‚¹ãƒ†ãƒ¼ã‚¸ã«å¯¾å¿œã™ã‚‹SubCameraï¼‰
+    [SerializeField] private List<GameObject> subCameras = new List<GameObject>();
     private int currentStageIndex = 0;
 
-    // ó‘ÔŠÇ——p‚Ìƒtƒ‰ƒO
-    public bool isJudging = false;      // ”»’è’†‚©‚Ç‚¤‚©
-    private bool isReadyToThrow = false; // ”­Ë‘Ò‚¿‚©‚Ç‚¤‚©
+    // çŠ¶æ…‹ç®¡ç†ç”¨ã®ãƒ•ãƒ©ã‚°
+    public bool isJudging = false;      // åˆ¤å®šä¸­ã‹ã©ã†ã‹
+    private bool isReadyToThrow = false; // ç™ºå°„å¾…ã¡ã‹ã©ã†ã‹
 
     void Start()
     {
         carStartPos = car.position;
         carStartRot = car.rotation;
 
-        // ƒQ[ƒ€ŠJn‚àƒZƒbƒgƒAƒbƒv‚ğs‚¤i•¨—‚ğ~‚ß‚Ä”­Ë‘Ò‚¿‚É‚·‚éj
+        // ã‚²ãƒ¼ãƒ é–‹å§‹æ™‚ã‚‚ã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—ã‚’è¡Œã†ï¼ˆç‰©ç†ã‚’æ­¢ã‚ã¦ç™ºå°„å¾…ã¡ã«ã™ã‚‹ï¼‰
         ResetCar();
         SpaceKeyGuideUI.SetActive(true);
+
+        // ã‚²ãƒ¼ãƒ é–‹å§‹å‰ã¯å…¨ã¦ã®SubCameraã‚’ã‚ªãƒ•ã«ã™ã‚‹ï¼ˆGameStartæ™‚ã«ã‚ªãƒ³ã«ãªã‚‹ï¼‰
+        DeactivateAllSubCameras();
+    }
+
+    /// <summary>
+    /// SubCameraã®åˆæœŸåŒ–ï¼šæœ€åˆã®ã‚¹ãƒ†ãƒ¼ã‚¸ã«å¯¾å¿œã™ã‚‹SubCameraã®ã¿ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã™ã‚‹
+    /// </summary>
+    private void InitializeSubCameras()
+    {
+        for (int i = 0; i < subCameras.Count; i++)
+        {
+            if (subCameras[i] != null)
+            {
+                subCameras[i].SetActive(i == currentStageIndex);
+            }
+        }
+    }
+
+    /// <summary>
+    /// ã‚²ãƒ¼ãƒ ã‚¹ã‚¿ãƒ¼ãƒˆæ™‚ã«å‘¼ã°ã‚Œã‚‹ï¼šç¾åœ¨ã®SubCameraã‚’ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã™ã‚‹
+    /// </summary>
+    public void ActivateCurrentSubCamera()
+    {
+        Debug.Log("ActivateCurrentSubCamera");
+        if (subCameras.Count > 0 && subCameras[currentStageIndex] != null)
+        {
+            subCameras[currentStageIndex].SetActive(true);
+            Debug.Log("ActivateCurrentSubCamera: " + currentStageIndex);
+        }
+    }
+
+    /// <summary>
+    /// å…¨ã¦ã®SubCameraã‚’éã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã™ã‚‹
+    /// </summary>
+    public void DeactivateAllSubCameras()
+    {
+        foreach (var cam in subCameras)
+        {
+            if (cam != null)
+            {
+                cam.SetActive(false);
+            }
+        }
     }
 
     void Update()
     {
-        // ƒQ[ƒ€I—¹ƒŠƒZƒbƒg
+        // ã‚²ãƒ¼ãƒ çµ‚äº†æ™‚ãƒªã‚»ãƒƒãƒˆ
         var status = scoreManager.CheckGameStatus();
         if (status.IsGameOver)
         {
@@ -55,23 +101,23 @@ public class BowlingGameDirector : MonoBehaviour
             return;
         }
 
-        // --- ”­Ë‘Ò‚¿‚Ìˆ— ---
+        // --- ç™ºå°„å¾…ã¡ã®å‡¦ç† ---
         if (isReadyToThrow)
         {
-            // ƒXƒy[ƒXƒL[‚ª‰Ÿ‚³‚ê‚½‚ç”­Ë
+            // ã‚¹ãƒšãƒ¼ã‚¹ã‚­ãƒ¼ãŒæŠ¼ã•ã‚ŒãŸã‚‰ç™ºå°„
             if (Input.GetKeyDown(KeyCode.Space) && GameStart.gameStarted)
             {
                 ShootCar();
             }
-            // ”­Ë‘Ò‚¿‚ÌŠÔ‚ÍA‚±‚êˆÈ~‚Ìˆ—iƒS[ƒ‹”»’è‚È‚Çj‚ğs‚í‚¹‚È‚¢
+            // ç™ºå°„å¾…ã¡ã®é–“ã¯ã€ã“ã‚Œä»¥é™ã®å‡¦ç†ï¼ˆã‚´ãƒ¼ãƒ«åˆ¤å®šãªã©ï¼‰ã‚’è¡Œã‚ã›ãªã„
             return;
         }
     }
 
     private void ShootCar()
     {
-        isReadyToThrow = false; // ‘Ò‹@ó‘Ô‰ğœ
-        carRb.isKinematic = false; // •¨—‰‰Z‚ğƒIƒ“‚É‚·‚éiÔ‚ª“®‚«o‚·/d—Í‚ªŒø‚­j
+        isReadyToThrow = false; // å¾…æ©ŸçŠ¶æ…‹è§£é™¤
+        carRb.isKinematic = false; // ç‰©ç†æ¼”ç®—ã‚’ã‚ªãƒ³ã«ã™ã‚‹ï¼ˆè»ŠãŒå‹•ãå‡ºã™/é‡åŠ›ãŒåŠ¹ãï¼‰
 
         SpaceKeyGuideUI.SetActive(false);
     }
@@ -80,31 +126,33 @@ public class BowlingGameDirector : MonoBehaviour
     {
         isJudging = true;
 
-        // 1. ƒsƒ“‚ª—‚¿’…‚­‚Ì‚ğ‘Ò‚Â
+        // 1. ãƒ”ãƒ³ãŒè½ã¡ç€ãã®ã‚’å¾…ã¤
         yield return new WaitForSeconds(waitTimeSeconds);
 
-        // 2. “|‚ê‚½ƒsƒ“‚ğWŒv‚µ‚Ä‹L˜^
+        // 2. å€’ã‚ŒãŸãƒ”ãƒ³ã‚’é›†è¨ˆã—ã¦è¨˜éŒ²
         List<GameObject> fallenPins = pinManager.CheckFallenPins();
         int fallenCount = fallenPins.Count;
 
-        Debug.Log($"“|‚ê‚½ƒsƒ“: {fallenCount}–{");
-        scoreManager.RecordThrow(fallenCount); // ‹L˜^•UIXV
+        Debug.Log($"å€’ã‚ŒãŸãƒ”ãƒ³: {fallenCount}æœ¬");
+        scoreManager.RecordThrow(fallenCount); // è¨˜éŒ²ï¼†UIæ›´æ–°
 
-        // 3. Manager‚ÉuŸ‚Ç‚¤‚·‚ê‚Î‚¢‚¢Hv‚Æ•·‚­ (‚±‚±‚ªd—v)
+        // 3. Managerã«ã€Œæ¬¡ã©ã†ã™ã‚Œã°ã„ã„ï¼Ÿã€ã¨èã (ã“ã“ãŒé‡è¦)
         var status = scoreManager.CheckGameStatus();
 
         if (status.IsGameOver)
         {
             Debug.Log("Game Over! Press R to Restart.");
+            // ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼æ™‚ã¯SubCameraã‚’ã‚ªãƒ•ã«ã™ã‚‹
+            DeactivateAllSubCameras();
             FindObjectOfType<resultUIManager>().ShowResultUI();
         }
         else
         {
-            // Ÿ‚Ì“Š‹…‚ÉŒü‚¯‚½ƒZƒbƒgƒAƒbƒv
+            // æ¬¡ã®æŠ•çƒã«å‘ã‘ãŸã‚»ãƒƒãƒˆã‚¢ãƒƒãƒ—
             switch (status.NextAction)
             {
                 case BowlingScoreManager.NextPinAction.ResetAll:
-                    // ƒXƒe[ƒW‚ğŸ‚Éi‚ß‚é
+                    // ã‚¹ãƒ†ãƒ¼ã‚¸ã‚’æ¬¡ã«é€²ã‚ã‚‹
                     ChangeToNextStage();
 
                     pinManager.ResetAllPins();
@@ -118,10 +166,10 @@ public class BowlingGameDirector : MonoBehaviour
                     break;
             }
 
-            // 4. Ô‚ğƒŠƒZƒbƒg
+            // 4. è»Šã‚’ãƒªã‚»ãƒƒãƒˆ
             ResetCar();
 
-            // 5. Ô‚Ì‹ß‚­‚ÉƒJƒƒ‰‚ğˆÚ“®
+            // 5. è»Šã®è¿‘ãã«ã‚«ãƒ¡ãƒ©ã‚’ç§»å‹•
             mainCamera.position = new Vector3(-245f, 7.25f, -466f);
             mainCamera.rotation = Quaternion.Euler(20f, 0f, 0f);
         }
@@ -134,35 +182,47 @@ public class BowlingGameDirector : MonoBehaviour
     {
         if (stages.Count == 0) return;
 
-        // Œ»İ‚ÌƒXƒe[ƒW‚ğ”ñƒAƒNƒeƒBƒu‚É‚·‚é
+        // ç¾åœ¨ã®ã‚¹ãƒ†ãƒ¼ã‚¸ã‚’éã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã™ã‚‹
         stages[currentStageIndex].SetActive(false);
 
-        // Ÿ‚ÌƒXƒe[ƒW‚Éi‚ŞiÅŒã‚ÌƒXƒe[ƒW‚Ìê‡‚ÍÅ‰‚É–ß‚éj
+        // ç¾åœ¨ã®SubCameraã‚’éã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã™ã‚‹
+        if (subCameras.Count > currentStageIndex && subCameras[currentStageIndex] != null)
+        {
+            subCameras[currentStageIndex].SetActive(false);
+        }
+
+        // æ¬¡ã®ã‚¹ãƒ†ãƒ¼ã‚¸ã«é€²ã‚€ï¼ˆæœ€å¾Œã®ã‚¹ãƒ†ãƒ¼ã‚¸ã®å ´åˆã¯æœ€åˆã«æˆ»ã‚‹ï¼‰
         currentStageIndex = (currentStageIndex + 1) % stages.Count;
 
-        // V‚µ‚¢ƒXƒe[ƒW‚ğƒAƒNƒeƒBƒu‚É‚·‚é
+        // æ–°ã—ã„ã‚¹ãƒ†ãƒ¼ã‚¸ã‚’ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã™ã‚‹
         stages[currentStageIndex].SetActive(true);
 
-        Debug.Log($"ƒXƒe[ƒW‚ğ•ÏX: Stage{currentStageIndex + 1}‚ªƒAƒNƒeƒBƒu‚É‚È‚è‚Ü‚µ‚½");
+        // æ–°ã—ã„SubCameraã‚’ã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ã™ã‚‹
+        if (subCameras.Count > currentStageIndex && subCameras[currentStageIndex] != null)
+        {
+            subCameras[currentStageIndex].SetActive(true);
+        }
+
+        Debug.Log($"ã‚¹ãƒ†ãƒ¼ã‚¸ã‚’å¤‰æ›´: Stage{currentStageIndex + 1}ãŒã‚¢ã‚¯ãƒ†ã‚£ãƒ–ã«ãªã‚Šã¾ã—ãŸ");
     }
 
     private void ResetCar()
     {
-        // ˆÊ’u‚ğ–ß‚·
+        // ä½ç½®ã‚’æˆ»ã™
         car.position = carStartPos;
         car.rotation = carStartRot;
 
-        // •¨—‹““®‚ğŠ®‘S‚É~‚ß‚é
+        // ç‰©ç†æŒ™å‹•ã‚’å®Œå…¨ã«æ­¢ã‚ã‚‹
         carRb.velocity = Vector3.zero;
         carRb.angularVelocity = Vector3.zero;
 
-        //ƒTƒCƒY‚ğ‚à‚Æ‚É–ß‚·
+        //ã‚µã‚¤ã‚ºã‚’ã‚‚ã¨ã«æˆ»ã™
         car.transform.localScale = Vector3.one;
 
-        // Kinematic‚ğON‚É‚µ‚ÄA•¨—“I‚ÉuŒÅ’èv‚·‚é ---
+        // Kinematicã‚’ONã«ã—ã¦ã€ç‰©ç†çš„ã«ã€Œå›ºå®šã€ã™ã‚‹ ---
         carRb.isKinematic = true;
 
-        // ”­Ë‘Ò‚¿ƒtƒ‰ƒO‚ğ—§‚Ä‚é
+        // ç™ºå°„å¾…ã¡ãƒ•ãƒ©ã‚°ã‚’ç«‹ã¦ã‚‹
         isReadyToThrow = true;
     }
 }

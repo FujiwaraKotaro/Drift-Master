@@ -1,7 +1,7 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using DG.Tweening; // DOTween�̖��O���
+using DG.Tweening; // DOTweenの名前空間
 
 public class GameStart : MonoBehaviour
 {
@@ -9,7 +9,7 @@ public class GameStart : MonoBehaviour
 
     [SerializeField] private GameObject titleUI;
     [SerializeField] private GameObject MainUI;
-    [SerializeField] private GameObject subCamera;
+    [SerializeField] private BowlingGameDirector gameDirector;
 
     public void StartGame()
     {
@@ -17,7 +17,8 @@ public class GameStart : MonoBehaviour
 
         titleUI.SetActive(!titleUI.activeSelf);
         MainUI.SetActive(!MainUI.activeSelf);
-        subCamera.SetActive(true);
 
+        // ゲーム開始時にSubCameraをオンにする
+        gameDirector.ActivateCurrentSubCamera();
     }
 }
