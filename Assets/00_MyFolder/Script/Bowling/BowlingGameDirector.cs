@@ -65,11 +65,9 @@ public class BowlingGameDirector : MonoBehaviour
     /// </summary>
     public void ActivateCurrentSubCamera()
     {
-        Debug.Log("ActivateCurrentSubCamera");
         if (subCameras.Count > 0 && subCameras[currentStageIndex] != null)
         {
             subCameras[currentStageIndex].SetActive(true);
-            Debug.Log("ActivateCurrentSubCamera: " + currentStageIndex);
         }
     }
 
