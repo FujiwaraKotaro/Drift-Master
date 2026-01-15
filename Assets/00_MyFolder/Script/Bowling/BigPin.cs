@@ -5,7 +5,7 @@ using UnityEngine;
 public class BigPin : MonoBehaviour
 {
     [Header("Physics Settings")]
-    [SerializeField] private float speedThreshold = 250f; // km/h
+    [SerializeField] private float speedThreshold = 500f; // km/h
 
     private Rigidbody rb;
     private bool wasKinematic;
@@ -23,14 +23,10 @@ public class BigPin : MonoBehaviour
         wasKinematic = rb.isKinematic;
     }
 
-    void Update()
-    {
-
-    }
-
     private void OnCollisionEnter(Collision collision)
     {
         if (rb == null) return;
+        if (!collision.gameObject.CompareTag("Car")) return;
 
         // 衝突した相手オブジェクトのRigidbodyを取得
         Rigidbody otherRb = collision.rigidbody;
@@ -47,14 +43,7 @@ public class BigPin : MonoBehaviour
         // 閾値を超えられない場合、kinematicにする
         if (speedKmh <= speedThreshold)
         {
-            if (rb.isKinematic)
-            {
-                rb.isKinematic = true;
-
-                // 衝突の勢いを適用（オプション）
-                Vector3 impactForce = collision.relativeVelocity * rb.mass;
-                rb.AddForce(impactForce, ForceMode.Impulse);
-            }
+            rb.isKinematic = true;
         }
     }
 

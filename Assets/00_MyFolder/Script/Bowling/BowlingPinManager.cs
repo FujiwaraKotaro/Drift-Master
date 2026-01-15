@@ -160,6 +160,7 @@ public class BowlingPinManager : MonoBehaviour
                 {
                     rb.velocity = Vector3.zero;
                     rb.angularVelocity = Vector3.zero;
+                    rb.isKinematic = false;
                     rb.Sleep(); // 一旦スリープさせると安定する
                 }
 
@@ -184,6 +185,7 @@ public class BowlingPinManager : MonoBehaviour
                 {
                     rb.velocity = Vector3.zero;
                     rb.angularVelocity = Vector3.zero;
+                    rb.isKinematic = false;
                     // 倒れていないピンは、微妙に動いていても元の回転に戻すと不自然なので、
                     // 速度ゼロにするだけにとどめるか、少しだけ補正する
                     // ここではシンプルに速度ゼロ化のみ
