@@ -142,12 +142,5 @@ public class BowlingUIManager : MonoBehaviour
                 totalScoreTexts[f - 1].text = (score != -1) ? score.ToString() : "";
             }
         }
-        /*
-        // 使用されていないUIテキストをクリア
-        for (int i = totalFrames; i < totalScoreTexts.Count; i++)
-        {
-            totalScoreTexts[i].text = "";
-        }
-        */
     }
 }
