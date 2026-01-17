@@ -189,8 +189,11 @@ public class BowlingGameDirector : MonoBehaviour
             subCameras[currentStageIndex].SetActive(false);
         }
 
-        // 次のステージに進む（最後のステージの場合は最初に戻る）
-        currentStageIndex = (currentStageIndex + 1) % stages.Count;
+        // 次のステージに進む（最後のステージの場合は何もしない）
+        if(currentStageIndex == stages.Count - 1) return;
+
+        currentStageIndex = currentStageIndex + 1;
+        
 
         // 新しいステージをアクティブにする
         stages[currentStageIndex].SetActive(true);
