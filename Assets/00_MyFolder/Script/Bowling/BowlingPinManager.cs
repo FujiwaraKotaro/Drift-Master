@@ -227,9 +227,9 @@ public class BowlingPinManager : MonoBehaviour
         {
             return frameMaxPinCounts[frameIndex];
         }
-        return 10; // デフォルト値
+        // デフォルト値として現在のピン数を返す
+        return initialPinTransforms.Count; 
     }
-
     // ⭐ ゲームリセット時にピン数履歴もクリア
     public void ResetFramePinCounts()
     {

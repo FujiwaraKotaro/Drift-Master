@@ -25,6 +25,7 @@ public class NextFrame : MonoBehaviour
         }
     }
 
+    /*
     private void Update()
     {
         if (rb != null && !gameDirector.isJudging)
@@ -32,6 +33,7 @@ public class NextFrame : MonoBehaviour
             CheckSpeedDeceleration();
         }
     }
+    */
 
     private void CheckSpeedDeceleration()
     {
@@ -80,6 +82,15 @@ public class NextFrame : MonoBehaviour
         previousVelocity = Vector3.zero;
         lastSpeedCheckTime = Time.time;
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {   
+        rb = collision.gameObject.GetComponent<Rigidbody>();
+        if (!gameDirector.isJudging && collision.gameObject.CompareTag("Pin") && rb.isKinematic)
+        {
+            StartCoroutine(gameDirector.ProcessThrowResult());
+        }
+    }   
 
     private void OnTriggerEnter(Collider other)
     {

@@ -7,7 +7,7 @@ using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 public class BowlingScoreManager : MonoBehaviour
 {
     [Header("Game Settings")]
-    [SerializeField] private int totalFrames = 10; // フレーム数を可変にする
+    [SerializeField] private int totalFrames = 5; // フレーム数を可変にする
     public int TotalFrames => totalFrames;
 
     [SerializeField] private BowlingUIManager uiManager;
@@ -88,7 +88,7 @@ public class BowlingScoreManager : MonoBehaviour
 
         // 最終フレームの処理
         if (frame == totalFrames)
-        {
+        {   
             if (rollIndex >= rolls.Count)
                 return new GameStatus { IsGameOver = false, NextAction = NextPinAction.ResetAll };
 
@@ -163,10 +163,14 @@ public class BowlingScoreManager : MonoBehaviour
 
                 bool isFrameFinished = false;
                 if (throws == 3) isFrameFinished = true;
-                else if (throws == 2 && rolls[rollIndex] + (throws > 1 ? rolls[rollIndex + 1] : 0) < 10 && rolls[rollIndex] != 10)
+                else if (throws == 2 && rolls[rollIndex] + (throws > 1 ? rolls[rollIndex + 1] : 0) < pinManager.GetFrameMaxPinCount(f) && rolls[rollIndex] != pinManager.GetFrameMaxPinCount(f))
                     isFrameFinished = true;
 
-                if (isFrameFinished) currentFrameScore = sum;
+                if (isFrameFinished)
+                {
+                    currentFrameScore = sum;
+                    Debug.Log($"フレーム{f + 1} 最終フレーム: 合計={sum}, 投球数={throws}");
+                }
                 advance = throws;
             }
             else // 通常フレーム
@@ -175,10 +179,10 @@ public class BowlingScoreManager : MonoBehaviour
                 {
                     if (rollIndex + 2 < rolls.Count)
                     {
-                        // ストライク: 10 + 次の2投の合計
+                        // ストライク: maxPins + 次の2投の合計
                         currentFrameScore = pinManager.GetFrameMaxPinCount(f) + rolls[rollIndex + 1] + rolls[rollIndex + 2];
 
-                        Debug.Log($"フレーム{f + 1} ストライク: 10+{rolls[rollIndex + 1]}+{rolls[rollIndex + 2]}={currentFrameScore}");
+                        Debug.Log($"フレーム{f + 1} ストライク: {pinManager.GetFrameMaxPinCount(f)}+{rolls[rollIndex + 1]}+{rolls[rollIndex + 2]}={currentFrameScore}");
                     }
                     advance = 1;
                 }

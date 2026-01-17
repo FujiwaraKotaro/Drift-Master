@@ -76,16 +76,19 @@ public class BowlingUIManager : MonoBehaviour
                     }
                 }
             }
-            else // 最終フレーム (Boxは3つ)
+            else // 最終フレーム (Boxは末尾の3つを使用)
             {
-                TMP_Text text1 = rollBoxTexts[boxIndex];
-                TMP_Text text2 = rollBoxTexts[boxIndex + 1];
-                TMP_Text text3 = rollBoxTexts[boxIndex + 2];
+                // rollBoxTextsの末尾3つを使用
+                int lastBoxIndex = rollBoxTexts.Count - 1;
+                TMP_Text text1 = rollBoxTexts[lastBoxIndex - 2];
+                TMP_Text text2 = rollBoxTexts[lastBoxIndex - 1];
+                TMP_Text text3 = rollBoxTexts[lastBoxIndex];
 
-                int remainingRolls = rolls.Count - rollIndex;
+                // 最終フレームの投球数を計算（rollsの末尾から最大3つ）
+                int finalFrameRollCount = Mathf.Min(rolls.Count - rollIndex, 3);
 
                 // 1つ目のBox
-                if (remainingRolls >= 1)
+                if (finalFrameRollCount >= 1)
                 {
                     int r1 = rolls[rollIndex];
                     text1.text = (r1 == pinManager.GetFrameMaxPinCount(f - 1)) ? "X" : r1.ToString();
@@ -93,7 +96,7 @@ public class BowlingUIManager : MonoBehaviour
                 else text1.text = "";
 
                 // 2つ目のBox
-                if (remainingRolls >= 2)
+                if (finalFrameRollCount >= 2)
                 {
                     int r1 = rolls[rollIndex];
                     int r2 = rolls[rollIndex + 1];
@@ -108,7 +111,7 @@ public class BowlingUIManager : MonoBehaviour
                 else text2.text = "";
 
                 // 3つ目のBox
-                if (remainingRolls >= 3)
+                if (finalFrameRollCount >= 3)
                 {
                     int r2 = rolls[rollIndex + 1];
                     int r3 = rolls[rollIndex + 2];
@@ -124,17 +127,27 @@ public class BowlingUIManager : MonoBehaviour
             }
 
             // --- 下段 (Total Score) の更新 ---
-            if (f - 1 < totalScoreTexts.Count && f - 1 < frameScores.Length)
+            if (f == totalFrames) // 最終フレームは末尾を参照
+            {
+                int lastIndex = totalScoreTexts.Count - 1;
+                if (lastIndex >= 0 && f - 1 < frameScores.Length)
+                {
+                    int score = frameScores[f - 1];
+                    totalScoreTexts[lastIndex].text = (score != -1) ? score.ToString() : "";
+                }
+            }
+            else if (f - 1 < totalScoreTexts.Count && f - 1 < frameScores.Length)
             {
                 int score = frameScores[f - 1];
                 totalScoreTexts[f - 1].text = (score != -1) ? score.ToString() : "";
             }
         }
-
+        /*
         // 使用されていないUIテキストをクリア
         for (int i = totalFrames; i < totalScoreTexts.Count; i++)
         {
             totalScoreTexts[i].text = "";
         }
+        */
     }
 }
