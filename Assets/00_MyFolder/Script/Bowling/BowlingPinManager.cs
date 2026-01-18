@@ -108,6 +108,10 @@ public class BowlingPinManager : MonoBehaviour
             // 非アクティブ（すでに除去された）ピンは無視
             if (pin == null || !pin.activeSelf) continue;
 
+            // kinematicなピンは倒れていない判定（BigPinで固定されたピン）
+            Rigidbody rb = pin.GetComponent<Rigidbody>();
+            if (rb != null && rb.isKinematic) continue;
+
             float angle = Vector3.Angle(pin.transform.up, Vector3.up);
 
             // 初期位置からの距離を計算
@@ -155,9 +159,10 @@ public class BowlingPinManager : MonoBehaviour
                 Rigidbody rb = p.GetComponent<Rigidbody>();
                 if (rb != null)
                 {
+                    // kinematicを先に解除してから速度を設定
+                    rb.isKinematic = false;
                     rb.velocity = Vector3.zero;
                     rb.angularVelocity = Vector3.zero;
-                    rb.isKinematic = false;
                     rb.Sleep(); // 一旦スリープさせると安定する
                 }
 
@@ -183,9 +188,10 @@ public class BowlingPinManager : MonoBehaviour
                 Rigidbody rb = pin.GetComponent<Rigidbody>();
                 if (rb != null)
                 {
+                    // kinematicを先に解除してから速度を設定
+                    rb.isKinematic = false;
                     rb.velocity = Vector3.zero;
                     rb.angularVelocity = Vector3.zero;
-                    rb.isKinematic = false;
                     // 倒れていないピンは、微妙に動いていても元の回転に戻すと不自然なので、
                     // 速度ゼロにするだけにとどめるか、少しだけ補正する
                     // ここではシンプルに速度ゼロ化のみ

@@ -61,7 +61,18 @@ public class GetItem : MonoBehaviour
                     cameraScript.UpdateCameraOffset(cameraAdjustmentMultiplier);
                 }
             }
+
+            // ぶつかったアイテムを1秒間非アクティブにする
+            StartCoroutine(HideItemTemporarily(other.gameObject));
         }
+    }
+
+    // アイテムを一時的に非表示にするコルーチン
+    private IEnumerator HideItemTemporarily(GameObject item)
+    {
+        item.SetActive(false);
+        yield return new WaitForSeconds(1f);
+        item.SetActive(true);
     }
 
     private void ShowScoreUI()

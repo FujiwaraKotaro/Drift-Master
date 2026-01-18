@@ -9,16 +9,39 @@ public class PinSE : MonoBehaviour
     // 音を鳴らせるかどうかのフラグ - すべてのインスタンスで共有
     private static bool canPlaySound = true;
 
+    private Rigidbody rb;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody>();
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Car"))
         {
-            // フラグがtrueの場合のみ音を鳴らす
-            if (canPlaySound)
-            {
-                SoundManager.Instance.PlaySE("PinSE");
-                StartCoroutine(CooldownCoroutine());
-            }
+            // 1フレーム待機してからチェック（BigPinのkinematic設定を待つ）
+            StartCoroutine(CheckAndPlaySE());
+        }
+    }
+
+    // 1フレーム待機してからkinematicチェックと音の再生を行う
+    private IEnumerator CheckAndPlaySE()
+    {
+        // 1フレーム待機
+        yield return null;
+
+        // このピンがkinematicの場合は音を鳴らさない
+        if (rb != null && rb.isKinematic)
+        {
+            yield break;
+        }
+
+        // フラグがtrueの場合のみ音を鳴らす
+        if (canPlaySound)
+        {
+            SoundManager.Instance.PlaySE("PinSE");
+            StartCoroutine(CooldownCoroutine());
         }
     }
 
