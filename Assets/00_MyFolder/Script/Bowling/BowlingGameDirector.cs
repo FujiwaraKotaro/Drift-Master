@@ -186,7 +186,8 @@ public class BowlingGameDirector : MonoBehaviour
     private void ChangeToNextStage()
     {
         if (stages.Count == 0) return;
-
+        //最後のステージの場合は何もしない
+        if(currentStageIndex == stages.Count - 1) return;
         // 現在のステージを非アクティブにする
         stages[currentStageIndex].SetActive(false);
 
@@ -196,9 +197,7 @@ public class BowlingGameDirector : MonoBehaviour
             subCameras[currentStageIndex].SetActive(false);
         }
 
-        // 次のステージに進む（最後のステージの場合は何もしない）
-        if(currentStageIndex == stages.Count - 1) return;
-
+        // 次のステージに進む
         currentStageIndex = currentStageIndex + 1;
         
 
