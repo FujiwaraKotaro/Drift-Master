@@ -7,16 +7,21 @@ using TMPro;
 public class GetItem : MonoBehaviour
 {
     Rigidbody m_Rigidbody;
-    [SerializeField] private float initialForceStrength = 30000f; // ¿—Ê1500‚É“K‚µ‚½—Í
-    [SerializeField] private float sizeMultiplier = 1.2f; //ƒAƒCƒeƒ€æ“¾‚ÌƒTƒCƒYUP”{—¦
+    [SerializeField] private float initialForceStrength = 30000f; // è³ªé‡1500ã«é©ã—ãŸåŠ›
+    [SerializeField] private float sizeMultiplier = 1.2f; //ã‚¢ã‚¤ãƒ†ãƒ å–å¾—æ™‚ã®ã‚µã‚¤ã‚ºUPå€ç‡
 
     public int number_getItem = 1;
 
+    [Header("Camera Adjustment Settings")]
+    [SerializeField] private CameraScript cameraScript; // ã‚«ãƒ¡ãƒ©ã‚¹ã‚¯ãƒªãƒ—ãƒˆã¸ã®å‚ç…§
+    [SerializeField] private float cameraAdjustmentMultiplier = 2.0f; // ã‚«ãƒ¡ãƒ©èª¿æ•´å€ç‡ï¼ˆå¯å¤‰ï¼‰
+    private int itemsPerCameraAdjustment = 5; // 5ã¤ã”ã¨ã«èª¿æ•´
+
     [Header("Score UI Settings")]
-    [SerializeField] private GameObject scoreUIPrefab;   // ƒXƒRƒAUI‚ÌƒvƒŒƒnƒu
-    [SerializeField] private Transform spawnParent;      // ¶¬‚·‚éeiCanvas‚È‚Çj
-    [SerializeField] private float moveDistance = 100f; // ã‚ÉˆÚ“®‚·‚é‹——£
-    [SerializeField] private float duration = 1.5f;     // ƒAƒjƒ[ƒVƒ‡ƒ“ŠÔ
+    [SerializeField] private GameObject scoreUIPrefab;   // ã‚¹ã‚³ã‚¢UIã®ãƒ—ãƒ¬ãƒãƒ–
+    [SerializeField] private Transform spawnParent;      // ç”Ÿæˆã™ã‚‹è¦ªï¼ˆCanvasãªã©ï¼‰
+    [SerializeField] private float moveDistance = 100f; // ä¸Šã«ç§»å‹•ã™ã‚‹è·é›¢
+    [SerializeField] private float duration = 1.5f;     // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³æ™‚é–“
 
     void Start()
     {
@@ -29,53 +34,62 @@ public class GetItem : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Item"))
         {
-            // ƒAƒCƒeƒ€æ“¾‚àÔ‚Ì‘O•ûŒü‚É—Í‚ğ‰Á‚¦‚é
+            // ã‚¢ã‚¤ãƒ†ãƒ å–å¾—æ™‚ã‚‚è»Šã®å‰æ–¹å‘ã«åŠ›ã‚’åŠ ãˆã‚‹
             m_Rigidbody.AddForce(transform.forward * initialForceStrength, ForceMode.Impulse);
             number_getItem++;
 
-            // Œ»İ‚ÌƒTƒCƒY‚ÆˆÊ’u‚ğ•Û‘¶
+            // ç¾åœ¨ã®ã‚µã‚¤ã‚ºã¨ä½ç½®ã‚’ä¿å­˜
             Vector3 currentScale = transform.localScale;
             Vector3 currentPosition = transform.position;
 
-            // Ô‚ÌƒTƒCƒY‚ğXV
+            // è»Šã®ã‚µã‚¤ã‚ºã‚’æ›´æ–°
             transform.localScale = currentScale * sizeMultiplier;
 
-            // ƒTƒCƒY‘‰Á•ª‚¾‚¯YÀ•W‚ğã‚ÉˆÚ“®i’n–Ê‚É–„‚Ü‚ç‚È‚¢‚æ‚¤‚Éj
+            // ã‚µã‚¤ã‚ºå¢—åŠ åˆ†ã ã‘Yåº§æ¨™ã‚’ä¸Šã«ç§»å‹•ï¼ˆåœ°é¢ã«åŸ‹ã¾ã‚‰ãªã„ã‚ˆã†ã«ï¼‰
             float sizeIncrease = (sizeMultiplier - 1.0f) * currentScale.y;
             transform.position = new Vector3(currentPosition.x, currentPosition.y + sizeIncrease, currentPosition.z);
 
             SoundManager.Instance.PlaySE("SpeedUpSE");
-            // ƒXƒRƒAUI‰‰o‚ğŠJn
+            // ã‚¹ã‚³ã‚¢UIæ¼”å‡ºã‚’é–‹å§‹
             ShowScoreUI();
+
+            // 5å€‹ã”ã¨ã«ã‚«ãƒ¡ãƒ©ã®ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’èª¿æ•´
+            if (number_getItem % itemsPerCameraAdjustment == 0)
+            {
+                if (cameraScript != null)
+                {
+                    cameraScript.UpdateCameraOffset(cameraAdjustmentMultiplier);
+                }
+            }
         }
     }
 
     private void ShowScoreUI()
     {
-        // ƒvƒŒƒnƒu‚ğ¶¬
+        // ãƒ—ãƒ¬ãƒãƒ–ã‚’ç”Ÿæˆ
         GameObject scoreUIInstance = Instantiate(scoreUIPrefab, spawnParent);
 
-        // qƒIƒuƒWƒFƒNƒg‚©‚çƒRƒ“ƒ|[ƒlƒ“ƒg‚ğæ“¾
+        // å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‹ã‚‰ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã‚’å–å¾—
         TMP_Text scoreText = scoreUIInstance.GetComponentInChildren<TMP_Text>();
         CanvasGroup canvasGroup = scoreUIInstance.GetComponent<CanvasGroup>();
 
-        // TMPƒeƒLƒXƒg‚ÉƒXƒRƒA‚ğİ’è
-        scoreText.text = "ƒXƒs[ƒhUP\nƒTƒCƒYUP";
+        // TMPãƒ†ã‚­ã‚¹ãƒˆã«ã‚¹ã‚³ã‚¢ã‚’è¨­å®š
+        scoreText.text = "ã‚¹ãƒ”ãƒ¼ãƒ‰UP\nã‚µã‚¤ã‚ºUP";
 
-        // ‰Šúó‘Ô‚ğİ’è
+        // åˆæœŸçŠ¶æ…‹ã‚’è¨­å®š
         canvasGroup.alpha = 1f;
 
-        // ŠJnˆÊ’u‚ğİ’èi•K—v‚É‰‚¶‚Ä’²®j
+        // é–‹å§‹ä½ç½®ã‚’è¨­å®šï¼ˆå¿…è¦ã«å¿œã˜ã¦èª¿æ•´ï¼‰
         Vector3 startPosition = scoreUIInstance.transform.position;
 
-        // ƒAƒjƒ[ƒVƒ‡ƒ“Às
-        // 1. ã‚ÉˆÚ“®
+        // ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å®Ÿè¡Œ
+        // 1. ä¸Šã«ç§»å‹•
         scoreUIInstance.transform.DOMoveY(startPosition.y + moveDistance, duration);
 
-        // 2. ƒtƒF[ƒhƒAƒEƒg
+        // 2. ãƒ•ã‚§ãƒ¼ãƒ‰ã‚¢ã‚¦ãƒˆ
         canvasGroup.DOFade(0f, duration);
 
-        // 3. ƒAƒjƒ[ƒVƒ‡ƒ“Š®—¹Œã‚ÉƒfƒXƒgƒƒC
+        // 3. ã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³å®Œäº†å¾Œã«ãƒ‡ã‚¹ãƒˆãƒ­ã‚¤
         DOVirtual.DelayedCall(duration, () =>
         {
             if (scoreUIInstance != null)

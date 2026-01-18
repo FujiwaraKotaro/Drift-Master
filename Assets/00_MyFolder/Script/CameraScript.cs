@@ -5,49 +5,82 @@ public class CameraScript : MonoBehaviour
     [SerializeField] GameObject player;
 
     [Header("Tracking Settings")]
-    public bool trackX = true; // X²(¶‰E)‚ğ’Ç]‚·‚é‚©
-    // ƒ{ƒEƒŠƒ“ƒO‚Ìê‡AtrackY‚ÍƒIƒt(false)‚ª‚¨‚·‚·‚ß‚Å‚·
-    public bool trackY = false; // Y²(ã‰º)‚ğ’Ç]‚·‚é‚© 
-    public bool trackZ = true; // Z²(‰œs)‚ğ’Ç]‚·‚é‚©
+    public bool trackX = true; // Xè»¸(å·¦å³)ã‚’è¿½å¾“ã™ã‚‹ã‹
+    // ãƒœã‚¦ãƒªãƒ³ã‚°ã®å ´åˆã€trackYã¯ã‚ªãƒ•(false)ãŒãŠã™ã™ã‚ã§ã™
+    public bool trackY = false; // Yè»¸(ä¸Šä¸‹)ã‚’è¿½å¾“ã™ã‚‹ã‹ 
+    public bool trackZ = true; // Zè»¸(å¥¥è¡Œ)ã‚’è¿½å¾“ã™ã‚‹ã‹
 
     [Header("Position Offset")]
-    public float distance = 6.0f;     // ƒvƒŒƒCƒ„[‚ÌŒã‚ë‰½ƒ[ƒgƒ‹‚©
-    public float height = 3.0f;       // ƒvƒŒƒCƒ„[‚Ìã‰½ƒ[ƒgƒ‹‚©
-    public float smoothSpeed = 5.0f;  // ’Ç]‚ÌŠŠ‚ç‚©‚³
+    public float distance = 6.0f;     // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®å¾Œã‚ä½•ãƒ¡ãƒ¼ãƒˆãƒ«ã‹
+    public float height = 3.0f;       // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ä¸Šä½•ãƒ¡ãƒ¼ãƒˆãƒ«ã‹
+    public float smoothSpeed = 5.0f;  // è¿½å¾“ã®æ»‘ã‚‰ã‹ã•
 
     [Header("Screen Position Adjustment")]
-    [Tooltip("’l‚ğ‘å‚«‚­‚·‚é‚Ù‚ÇAÔ‚ª‰æ–Ê‚Ì‰º‚Ì•û‚É•\¦‚³‚ê‚Ü‚·")]
-    public float lookAtOffsetHeight = 2.0f; // ‹“_‚ğÔ‚Ì’†S‚©‚ç‚Ç‚ê‚¾‚¯ã‚¸‚ç‚·‚©
+    [Tooltip("å€¤ãŒå¤§ãã„ã»ã©ã€è»ŠãŒç”»é¢ã®ä¸‹ã®æ–¹ã«è¡¨ç¤ºã•ã‚Œã‚‹")]
+    public float lookAtOffsetHeight = 2.0f; // æ³¨è¦–ç‚¹ã®ä¸­å¿ƒã‚’ã©ã‚Œã ã‘ä¸Šã’ã‚‹ã‹
+
+    // ã‚«ãƒ¡ãƒ©ã‚ªãƒ•ã‚»ãƒƒãƒˆç®¡ç†ç”¨ã®å¤‰æ•°
+    private float initialDistance;
+    private float initialHeight;
+    private float cumulativeScaleMultiplier = 1.0f;
+
+    void Start()
+    {
+        // åˆæœŸå€¤ã‚’ä¿å­˜
+        initialDistance = distance;
+        initialHeight = height;
+    }
 
     void FixedUpdate()
     {
         if (GameStart.gameStarted == false) return;
         if (player == null || !GameStart.gameStarted) return;
 
-        // --- 1. Ô‚ÌŒü‚«‚ÉŠî‚Ã‚¢‚ÄƒJƒƒ‰‚ÌˆÊ’u‚ğŒvZ ---
-        // Ô‚ÌŒã‚ë•ûŒü = Ô‚Ì‘O•ûŒü‚Ì‹t
+        // --- 1. è»Šã®å‘ãã«åŸºã¥ã„ã¦ã‚«ãƒ¡ãƒ©ã®ä½ç½®ã‚’è¨ˆç®— ---
+        // è»Šã®å¾Œã‚æ–¹å‘ = è»Šã®å‰æ–¹å‘ã®é€†
         Vector3 carBackDirection = -player.transform.forward;
 
-        // Ô‚ÌˆÊ’u‚©‚çŒã‚ë•ûŒü‚Édistance•ª—£‚ê‚½ˆÊ’u
+        // è»Šã®ä½ç½®ã‹ã‚‰å¾Œã‚æ–¹å‘ã«distanceåˆ†é›¢ã‚ŒãŸä½ç½®
         Vector3 targetPosition = player.transform.position + carBackDirection * distance + Vector3.up * height;
 
         Vector3 currentPos = transform.position;
 
-        // ƒtƒ‰ƒO‚ªON‚Ì²‚¾‚¯XV
+        // ãƒ•ãƒ©ã‚°ãŒONã®è»¸ã ã‘æ›´æ–°
         Vector3 nextPos = new Vector3(
             trackX ? targetPosition.x : currentPos.x,
             trackY ? targetPosition.y : currentPos.y,
             trackZ ? targetPosition.z : currentPos.z
         );
 
-        // ŠŠ‚ç‚©‚ÉˆÚ“®
+        // æ»‘ã‚‰ã‹ã«ç§»å‹•
         transform.position = Vector3.Lerp(transform.position, nextPos, smoothSpeed * Time.deltaTime);
 
-        // --- 2. ƒJƒƒ‰‚ÌŒü‚«ŒvZiÔ‚Ì•ûŒü‚ğŒ©‚éj ---
-        // ƒvƒŒƒCƒ„[‚ÌŒ»İˆÊ’u‚©‚çA­‚µã‚Ì“_‚ğƒ^[ƒQƒbƒg‚É‚·‚é
+        // --- 2. ã‚«ãƒ¡ãƒ©ã®å‘ãè¨ˆç®—ï¼ˆè»Šã®æ–¹å‘ã‚’è¦‹ã‚‹ï¼‰ ---
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç¾åœ¨ä½ç½®ã‹ã‚‰ã€å°‘ã—ä¸Šã®ç‚¹ã‚’ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã«ã™ã‚‹
         Vector3 lookTarget = player.transform.position + Vector3.up * lookAtOffsetHeight;
 
-        // ‚»‚Ìƒ^[ƒQƒbƒg‚Ì•ûŒü‚ğŒü‚­
+        // ã“ã®å‘ãã®ã‚¿ãƒ¼ã‚²ãƒƒãƒˆã‚’å‘ã
         transform.LookAt(lookTarget);
+    }
+
+    /// <summary>
+    /// ã‚«ãƒ¡ãƒ©ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’æ›´æ–°ï¼ˆã‚¢ã‚¤ãƒ†ãƒ 5å€‹å–å¾—ã”ã¨ã«å‘¼ã°ã‚Œã‚‹ï¼‰
+    /// </summary>
+    /// <param name="multiplier">ã‚«ãƒ¡ãƒ©èª¿æ•´å€ç‡</param>
+    public void UpdateCameraOffset(float multiplier)
+    {
+        cumulativeScaleMultiplier *= multiplier;
+        distance = initialDistance * cumulativeScaleMultiplier;
+        height = initialHeight * cumulativeScaleMultiplier;
+    }
+
+    /// <summary>
+    /// ã‚«ãƒ¡ãƒ©ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’åˆæœŸå€¤ã«ãƒªã‚»ãƒƒãƒˆï¼ˆã‚²ãƒ¼ãƒ ãƒªã‚»ãƒƒãƒˆæ™‚ã«å‘¼ã°ã‚Œã‚‹ï¼‰
+    /// </summary>
+    public void ResetCameraOffset()
+    {
+        cumulativeScaleMultiplier = 1.0f;
+        distance = initialDistance;
+        height = initialHeight;
     }
 }

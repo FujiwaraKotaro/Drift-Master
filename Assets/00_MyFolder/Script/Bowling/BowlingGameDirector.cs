@@ -15,6 +15,7 @@ public class BowlingGameDirector : MonoBehaviour
     [SerializeField] private Transform car;
     [SerializeField] private Rigidbody carRb;
     [SerializeField] private Transform mainCamera;
+    [SerializeField] private CameraScript cameraScript; // カメラスクリプトへの参照
     [SerializeField] private float waitTimeSeconds = 3f;
 
     [Header("スペースキーガイドUI")]
@@ -166,6 +167,12 @@ public class BowlingGameDirector : MonoBehaviour
 
             // 4. 車をリセット
             ResetCar();
+
+            // カメラのオフセットもリセット
+            if (cameraScript != null)
+            {
+                cameraScript.ResetCameraOffset();
+            };
 
             // 5. 車の近くにカメラを移動
             mainCamera.position = new Vector3(-245f, 7.25f, -466f);
