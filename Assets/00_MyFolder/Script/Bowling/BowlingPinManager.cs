@@ -143,9 +143,6 @@ public class BowlingPinManager : MonoBehaviour
     // 全てのピンを初期位置に戻して復活させる（新しいフレームの開始時）
     public void ResetAllPins()
     {
-        // 現在アクティブなステージのPinTagがついているオブジェクトを検索
-        FindAndSetCurrentPins();
-
         // 検出されたピンを初期位置にリセット
         foreach (var pinData in initialPinTransforms)
         {
@@ -168,6 +165,9 @@ public class BowlingPinManager : MonoBehaviour
                 p.transform.rotation = pinData.rotation;
             }
         }
+
+        // 現在アクティブなステージのPinTagがついているオブジェクトを検索
+        FindAndSetCurrentPins();
 
         Debug.Log($"ステージのピンをリセットしました: {pins.Length}本");
     }
