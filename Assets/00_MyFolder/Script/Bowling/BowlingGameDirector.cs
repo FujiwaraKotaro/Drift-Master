@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using unityroom.Api;
 
 // ゲーム全体の進行管理クラス
 // Managerに状況判断を委譲し、返ってきた指示に従ってピンや車を操作する
@@ -143,6 +144,16 @@ public class BowlingGameDirector : MonoBehaviour
             Debug.Log("Game Over! Press R to Restart.");
             // ゲームオーバー時はSubCameraをオフにする
             DeactivateAllSubCameras();
+
+            // unityroomにスコアを送信
+            int[] cumulativeScores = scoreManager.GetCumulativeScores();
+            int totalScore = cumulativeScores[cumulativeScores.Length - 1];
+            if (totalScore >= 0)
+            {
+                UnityroomApiClient.Instance.SendScore(1, totalScore, ScoreboardWriteMode.HighScoreDesc);
+                Debug.Log($"unityroomにスコア送信: {totalScore}");
+            }
+
             FindObjectOfType<resultUIManager>().ShowResultUI();
         }
         else
