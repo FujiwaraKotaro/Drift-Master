@@ -91,16 +91,7 @@ public class BowlingGameDirector : MonoBehaviour
     {
         // ゲーム終了時リセット
         var status = scoreManager.CheckGameStatus();
-        if (status.IsGameOver)
-        {
-            if (Input.GetKeyDown(KeyCode.R))
-            {
-                GameStart.gameStarted = false;
-                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-            }
-            return;
-        }
-
+        
         // --- 発射待ちの処理 ---
         if (isReadyToThrow)
         {
