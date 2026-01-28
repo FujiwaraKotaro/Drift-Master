@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class SoundManager : MonoBehaviour
 {
-    // ƒVƒ“ƒOƒ‹ƒgƒ“ƒCƒ“ƒXƒ^ƒ“ƒX
+    // ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹
     public static SoundManager Instance { get; private set; }
 
     [System.Serializable]
@@ -13,21 +13,21 @@ public class SoundManager : MonoBehaviour
         public AudioClip clip;
     }
 
-    [Header("BGMİ’è")]
+    [Header("BGMè¨­å®š")]
     [SerializeField] private List<SoundData> bgmList;
     [SerializeField] private AudioSource bgmSource;
 
-    [Header("SEİ’è")]
+    [Header("SEè¨­å®š")]
     [SerializeField] private List<SoundData> seList;
     [SerializeField] private AudioSource seSource;
 
     private void Awake()
     {
-        // ƒVƒ“ƒOƒ‹ƒgƒ“‚Ì‰Šú‰»
+        // ã‚·ãƒ³ã‚°ãƒ«ãƒˆãƒ³ã®åˆæœŸåŒ–å‡¦ç†
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // ƒV[ƒ“‚ğŒ×‚¢‚Å‚à”jŠü‚³‚ê‚È‚¢
+            DontDestroyOnLoad(gameObject); // ã‚·ãƒ¼ãƒ³é·ç§»æ™‚ã«ç ´æ£„ã•ã‚Œãªã„ã‚ˆã†ã«ã™ã‚‹
         }
         else
         {
@@ -35,17 +35,17 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    // --- BGMÄ¶—pƒƒ\ƒbƒh ---
+    // --- BGMå†ç”Ÿç”¨ãƒ¡ã‚½ãƒƒãƒ‰ ---
     public void PlayBGM(string name)
     {
         SoundData data = bgmList.Find(s => s.name == name);
         if (data.clip == null)
         {
-            Debug.LogWarning($"BGM: {name} ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ");
+            Debug.LogWarning($"BGM: {name} ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸ");
             return;
         }
 
-        // ‚·‚Å‚É“¯‚¶BGM‚ª—¬‚ê‚Ä‚¢‚éê‡‚Í‰½‚à‚µ‚È‚¢
+        // æ—¢ã«åŒã˜BGMãŒå†ç”Ÿä¸­ãªã‚‰ä½•ã‚‚ã—ãªã„
         if (bgmSource.clip == data.clip && bgmSource.isPlaying) return;
 
         bgmSource.clip = data.clip;
@@ -58,17 +58,17 @@ public class SoundManager : MonoBehaviour
         bgmSource.Stop();
     }
 
-    // --- SEÄ¶—pƒƒ\ƒbƒh ---
+    // --- SEå†ç”Ÿç”¨ãƒ¡ã‚½ãƒƒãƒ‰ ---
     public void PlaySE(string name)
     {
         SoundData data = seList.Find(s => s.name == name);
         if (data.clip == null)
         {
-            Debug.LogWarning($"SE: {name} ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ");
+            Debug.LogWarning($"SE: {name} ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸ");
             return;
         }
 
-        // PlayOneShot‚ÅÄ¶i•¡”‚Ì‰¹‚ªd‚È‚Á‚Ä‚à‘åä•vj
+        // PlayOneShotã‚’ä½¿ç”¨ï¼ˆåŒæ™‚ã«è¤‡æ•°ã®éŸ³ã‚’é‡ã­ã¦å†ç”Ÿå¯èƒ½ï¼‰
         seSource.PlayOneShot(data.clip);
     }
 }

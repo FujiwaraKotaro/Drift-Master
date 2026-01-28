@@ -7,12 +7,12 @@ public class Restart : MonoBehaviour
 {
     [SerializeField] private GameStart gameStart;
 
-    // シーンロード後に呼ばれるフラグ
+    // シーンリロード後に呼ばれるフラグ
     private static bool shouldStartGame = false;
 
     void Start()
     {
-        // シーンがリロードされた後、ゲームを開始する
+        // シーンがリロードされたらゲーム開始
         if (shouldStartGame)
         {
             shouldStartGame = false;
@@ -42,3 +42,4 @@ public class Restart : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
+

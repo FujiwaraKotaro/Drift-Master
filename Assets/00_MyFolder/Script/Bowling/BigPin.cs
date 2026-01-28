@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,11 +15,11 @@ public class BigPin : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         if (rb == null)
         {
-            Debug.LogError("BigPin: RigidbodyƒRƒ“ƒ|[ƒlƒ“ƒg‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ");
+            Debug.LogError("BigPin: Rigidbodyã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“");
             return;
         }
 
-        // ‰Šúó‘Ô‚ğ‹L˜^
+        // åˆæœŸçŠ¶æ…‹ã‚’è¨˜éŒ²
         wasKinematic = rb.isKinematic;
     }
 
@@ -28,43 +28,43 @@ public class BigPin : MonoBehaviour
         if (rb == null) return;
         if (!collision.gameObject.CompareTag("Car")) return;
 
-        // Õ“Ë‚µ‚½‘ŠèƒIƒuƒWƒFƒNƒg‚ÌRigidbody‚ğæ“¾
+        // è¡çªã—ã¦ããŸã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®Rigidbodyã‚’å–å¾—
         Rigidbody otherRb = collision.rigidbody;
         if (otherRb == null) return;
 
-        // Õ“Ë‘¬“x‚ğŒvZ (m/s)
+        // è¡çªé€Ÿåº¦ã‚’è¨ˆç®— (m/s)
         float collisionSpeed = otherRb.velocity.magnitude;
 
-        // km/h‚É•ÏŠ· (m/s ~ 3.6 = km/h)
+        // km/hã«å¤‰æ› (m/s Ã— 3.6 = km/h)
         float speedKmh = collisionSpeed * 3.6f;
 
-        Debug.Log($"BigPinÕ“ËŒŸo: ‘Šè‚Ì‘¬“x = {speedKmh:F1} km/h (è‡’l: {speedThreshold} km/h)");
+        Debug.Log($"BigPinè¡çªæ¤œå‡º: è¡çªé€Ÿåº¦ = {speedKmh:F1} km/h (é–¾å€¤: {speedThreshold} km/h)");
 
-        // è‡’l‚ğ’´‚¦‚ç‚ê‚È‚¢ê‡Akinematic‚É‚·‚é
+        // é–¾å€¤ä»¥ä¸‹ã®é€Ÿåº¦ãªã‚‰kinematicã«ã—ã¦å‹•ã‹ãªã„ã‚ˆã†ã«ã™ã‚‹
         if (speedKmh <= speedThreshold)
         {
             rb.isKinematic = true;
         }
     }
 
-    // kinematic‚ğè“®‚ÅƒŠƒZƒbƒg‚·‚éƒƒ\ƒbƒh
+    // kinematicçŠ¶æ…‹ã‚’ãƒªã‚»ãƒƒãƒˆã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰
     public void ResetKinematic()
     {
         if (rb != null)
         {
             rb.isKinematic = wasKinematic;
-            Debug.Log("BigPin: kinematicó‘Ô‚ğƒŠƒZƒbƒg‚µ‚Ü‚µ‚½");
+            Debug.Log("BigPin: kinematicçŠ¶æ…‹ã‚’ãƒªã‚»ãƒƒãƒˆã—ã¾ã—ãŸ");
         }
     }
 
-    // è‡’l‚ğ•ÏX‚·‚éƒƒ\ƒbƒh
+    // é–¾å€¤ã‚’å¤‰æ›´ã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰
     public void SetSpeedThreshold(float newThreshold)
     {
         speedThreshold = newThreshold;
-        Debug.Log($"BigPin: ‘¬“xè‡’l‚ğ {newThreshold} km/h ‚É•ÏX‚µ‚Ü‚µ‚½");
+        Debug.Log($"BigPin: é€Ÿåº¦é–¾å€¤ã‚’ {newThreshold} km/h ã«å¤‰æ›´ã—ã¾ã—ãŸ");
     }
 
-    // Œ»İ‚Ì‘¬“x‚ğæ“¾‚·‚éƒƒ\ƒbƒh
+    // ç¾åœ¨ã®é€Ÿåº¦ã‚’å–å¾—ã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰
     public float GetCurrentSpeed()
     {
         if (rb != null)
@@ -74,7 +74,7 @@ public class BigPin : MonoBehaviour
         return 0f;
     }
 
-    // kinematicó‘Ô‚ğŠm”F‚·‚éƒƒ\ƒbƒh
+    // kinematicçŠ¶æ…‹ã‚’ç¢ºèªã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰
     public bool IsKinematic()
     {
         return rb != null ? rb.isKinematic : true;

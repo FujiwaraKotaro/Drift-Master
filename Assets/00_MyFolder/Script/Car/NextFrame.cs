@@ -7,9 +7,9 @@ public class NextFrame : MonoBehaviour
     [SerializeField] BowlingGameDirector gameDirector;
 
     [Header("Speed Detection Settings")]
-    [SerializeField] private float speedCheckInterval = 0.1f; // 速度をチェックする間隔（秒）
-    [SerializeField] private float rapidDecelerationThreshold = 50f; // 急激な減速とみなす閾値（m/s²）
-    [SerializeField] private float minimumSpeed = 1f; // 判定を開始する最低速度（m/s）
+    [SerializeField] private float speedCheckInterval = 0.1f; // 速度チェック間隔（秒）
+    [SerializeField] private float rapidDecelerationThreshold = 50f; // 急な減速とみなす閾値（m/s2）
+    [SerializeField] private float minimumSpeed = 1f; // 監視開始最低速度（m/s）
 
     private Rigidbody rb;
     private Vector3 previousVelocity;
@@ -50,17 +50,17 @@ public class NextFrame : MonoBehaviour
             {
                 if (isSpeedMonitoring)
                 {
-                    // 前回の速度と比較して減速度を計算
+                    // 前の速度と比較して減速度を計算
                     float previousSpeed = previousVelocity.magnitude;
                     float speedDifference = previousSpeed - currentSpeed;
                     float deceleration = speedDifference / speedCheckInterval;
 
-                    // 急激な減速を検知
+                    // 急な減速を検知
                     if (deceleration >= rapidDecelerationThreshold)
                     {
-                        Debug.Log($"急激な減速を検知: {deceleration:F2} m/s²");
+                        Debug.Log($"急な減速検知: {deceleration:F2} m/s2");
                         StartCoroutine(gameDirector.ProcessThrowResult());
-                        isSpeedMonitoring = false; // 一度判定したら監視を停止
+                        isSpeedMonitoring = false; // 判定して監視停止
                     }
                 }
                 else
@@ -75,7 +75,7 @@ public class NextFrame : MonoBehaviour
         }
     }
 
-    // 監視をリセットする公開メソッド（ゲーム開始時などに使用）
+    // 監視をリセットするメソッド（ゲーム開始などに使用）
     public void ResetSpeedMonitoring()
     {
         isSpeedMonitoring = false;

@@ -3,9 +3,9 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class DebugCoM : MonoBehaviour
 {
-    // dS‚Ì•`‰æƒTƒCƒY
+    // é‡å¿ƒã®æç”»ã‚µã‚¤ã‚º
     [SerializeField] private float gizmoSize = 0.1f;
-    // dS‚ÌF
+    // é‡å¿ƒã®è‰²
     [SerializeField] private Color gizmoColor = Color.red;
 
     void OnDrawGizmosSelected()
@@ -15,7 +15,7 @@ public class DebugCoM : MonoBehaviour
         if (rb != null)
         {
             Gizmos.color = gizmoColor;
-            // worldCenterOfMass ‚Íƒ[ƒ‹ƒhÀ•W‚Å‚ÌdSˆÊ’u‚Å‚·
+            // worldCenterOfMass ã§ãƒ¯ãƒ¼ãƒ«ãƒ‰åº§æ¨™ã§ã®é‡å¿ƒä½ç½®ã‚’å–å¾—
             Gizmos.DrawSphere(rb.worldCenterOfMass, gizmoSize);
         }
     }

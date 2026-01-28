@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -45,14 +45,14 @@ public class PinSE : MonoBehaviour
         }
     }
 
-    // オブジェクトが非アクティブになった時の処理
+    // オブジェクトが非アクティブになる時の処理
     private void OnDisable()
     {
-        // コルーチンが途中で停止した場合に備えてフラグをリセット
+        // コルーチンが途中で停止する場合に備えてフラグをリセット
         canPlaySound = true;
     }
 
-    // クールダウンコルーチン
+    // クールダウン用コルーチン
     private IEnumerator CooldownCoroutine()
     {
         canPlaySound = false;

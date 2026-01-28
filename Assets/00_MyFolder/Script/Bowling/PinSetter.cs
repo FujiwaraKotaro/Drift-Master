@@ -1,19 +1,19 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class PinSetter : MonoBehaviour
 {
-    [Tooltip("ƒsƒ“‚ÌPrefab")]
+    [Tooltip("ãƒ”ãƒ³ç”Ÿæˆç”¨ã®Prefab")]
     public GameObject pinPrefab;
 
-    [Tooltip("ƒsƒ““¯Žm‚ÌŠÔŠuiƒ[ƒgƒ‹j ŒöŽ®‚Í12ƒCƒ“ƒ`à0.3048m")]
+    [Tooltip("ãƒ”ãƒ³åŒå£«ã®é–“éš”ï¼ˆãƒ«ãƒ¼ãƒˆä¸Šï¼‰ æ¨™æº–ã¯12ã‚¤ãƒ³ãƒï¼0.3048m")]
     public float spacing = 0.3048f;
 
-    [SerializeField] int rows = 4; // ƒ{ƒEƒŠƒ“ƒO‚Í’Êí4—ñ
+    [SerializeField] int rows = 4; // ãƒœã‚¦ãƒªãƒ³ã‚°ãªã‚‰4è¡Œ
 
-    [ContextMenu("Generate Pins")] // ƒRƒ“ƒeƒLƒXƒgƒƒjƒ…[‚©‚çŽÀs‰Â”\‚É‚·‚é
+    [ContextMenu("Generate Pins")] // ã‚³ãƒ³ãƒ†ã‚­ã‚¹ãƒˆãƒ¡ãƒ‹ãƒ¥ãƒ¼ã‹ã‚‰å®Ÿè¡Œå¯èƒ½ã«ã™ã‚‹
     public void GeneratePins()
     {
-        // Šù‘¶‚ÌŽqƒIƒuƒWƒFƒNƒg‚ª‚ ‚ê‚Îíœid•¡–hŽ~j
+        // æ—¢å­˜ã®å­ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å‰Šé™¤ã™ã‚‹ï¼ˆé‡è¤‡é˜²æ­¢ï¼‰
         while (transform.childCount > 0)
         {
             DestroyImmediate(transform.GetChild(0).gameObject);
@@ -21,19 +21,19 @@ public class PinSetter : MonoBehaviour
 
         for (int row = 0; row < rows; row++)
         {
-            // Šes‚Ìƒsƒ“‚Ì”‚Í (row + 1) ŒÂ
+            // å„è¡Œã®ãƒ”ãƒ³ã®æ•°ã¯ (row + 1) æœ¬
             for (int col = 0; col <= row; col++)
             {
-                // ZÀ•W: s” ~ ³ŽOŠpŒ`‚Ì‚‚³
+                // Zåº§æ¨™: è¡Œç•ªå· Ã— æ­£ä¸‰è§’å½¢ã®é«˜ã•
                 float zPos = row * spacing * Mathf.Sqrt(3) / 2;
 
-                // XÀ•W: —ñƒCƒ“ƒfƒbƒNƒX - (‚»‚Ìs‚Ì•‚Ì”¼•ª) ‚ÅƒZƒ“ƒ^ƒŠƒ“ƒO
-                // s‚Ì•‚Í row * spacing ‚È‚Ì‚ÅA‚»‚Ì”¼•ª (row * 0.5f) ‚ðˆø‚­
+                // Xåº§æ¨™: åˆ—ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹ - (ãã®è¡Œã®ç·ãƒ”ãƒ³æ•°ã®åŠåˆ†) ã‚’æŽ›ã‘ã¦ä¸­å¤®æƒãˆ
+                // è¡Œã®å¹…ã¯ row * spacing ãªã®ã§ã€ä¸­å¤®ã¯ (row * 0.5f) ãšã‚‰ã™
                 float xPos = (col - (row * 0.5f)) * spacing;
 
                 Vector3 position = new Vector3(xPos, 0, zPos);
 
-                // ¶¬ (e‚ð‚±‚ÌƒIƒuƒWƒFƒNƒg‚É‚·‚é)
+                // ç”Ÿæˆ (è¦ªã‚’ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«ã™ã‚‹)
                 GameObject pin = Instantiate(pinPrefab, transform.position + position, Quaternion.identity, transform);
                 pin.name = $"Pin_{row}_{col}";
             }

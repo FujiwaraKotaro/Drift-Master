@@ -22,3 +22,4 @@ public class GameStart : MonoBehaviour
         gameDirector.ActivateCurrentSubCamera();
     }
 }
+

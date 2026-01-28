@@ -6,11 +6,11 @@ using TMPro;
 public class SpeedUI : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private GameObject carObject; // Ô‚ÌGameObject
-    [SerializeField] private TMP_Text speedText;   // ‘¬“x•\¦—p‚ÌTMPƒeƒLƒXƒg
+    [SerializeField] private GameObject carObject; // è»Šã®GameObject
+    [SerializeField] private TMP_Text speedText;   // é€Ÿåº¦è¡¨ç¤ºç”¨ã®TMPãƒ†ã‚­ã‚¹ãƒˆ
 
     [Header("Settings")]
-    [SerializeField] private float updateInterval = 0.1f;         // XVŠÔŠui•bj
+    [SerializeField] private float updateInterval = 0.1f;         // æ›´æ–°é–“éš”ï¼ˆç§’ï¼‰
 
     private Rigidbody carRigidbody;
     private float lastUpdateTime;
@@ -23,7 +23,7 @@ public class SpeedUI : MonoBehaviour
 
     void Update()
     {
-        // w’è‚³‚ê‚½ŠÔŠu‚Å‘¬“x‚ğXV
+        // æŒ‡å®šã—ãŸé–“éš”ã§é€Ÿåº¦ã‚’æ›´æ–°
         if (Time.time - lastUpdateTime >= updateInterval)
         {
             UpdateSpeedDisplay();
@@ -33,13 +33,13 @@ public class SpeedUI : MonoBehaviour
 
     private void UpdateSpeedDisplay()
     {
-        // Ô‚Ì‘¬“x‚ğæ“¾im/sj
+        // è»Šã®é€Ÿåº¦ã‚’å–å¾—ï¼ˆm/sï¼‰
         float speedInMPS = carRigidbody.velocity.magnitude;
 
-        // ‘¬ikm/hj‚É•ÏŠ·im/s ~ 3.6 = km/hj
+        // æ™‚é€Ÿï¼ˆkm/hï¼‰ã«å¤‰æ›ï¼ˆm/s Ã— 3.6 = km/hï¼‰
         float speedInKMH = speedInMPS * 3.6f;
 
-        // TMPƒeƒLƒXƒg‚É•\¦
-        speedText.text = string.Format("‘¬{0:F1}km", speedInKMH);
+        // TMPãƒ†ã‚­ã‚¹ãƒˆã«è¡¨ç¤º
+        speedText.text = string.Format("é€Ÿåº¦{0:F1}km", speedInKMH);
     }
 }

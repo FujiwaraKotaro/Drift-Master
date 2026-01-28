@@ -1,4 +1,4 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,8 +6,8 @@ public class Initialize : MonoBehaviour
 {
     void Start()
     {
-        // ƒuƒ‰ƒEƒU‚ÌƒfƒoƒCƒXƒsƒNƒZƒ‹”äiDPIj‚ğæ“¾‚µ‚Ä“K—p
-        // ‚±‚ê‚É‚æ‚èA‚‰ğ‘œ“xƒ‚ƒjƒ^[‚Å‚àƒNƒbƒLƒŠ•\¦‚³‚ê‚Ü‚·
+        // ãƒ–ãƒ©ã‚¦ã‚¶ã®ãƒ‡ãƒã‚¤ã‚¹ãƒ”ã‚¯ã‚»ãƒ«æ¯”ï¼ˆDPIï¼‰ã‚’1ã«å›ºå®šã™ã‚‹è¨­å®šã‚’é©ç”¨
+        // ã“ã‚Œã«ã‚ˆã‚Šã€é«˜è§£åƒåº¦ãƒ¢ãƒ‹ã‚¿ãƒ¼ã§ã‚¯ãƒƒã‚­ãƒªã¨è¡¨ç¤ºã•ã‚Œã‚‹
         QualitySettings.resolutionScalingFixedDPIFactor = 1.0f;
     }
 }

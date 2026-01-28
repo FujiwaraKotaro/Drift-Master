@@ -5,10 +5,10 @@ using TMPro;
 public class BowlingUIManager : MonoBehaviour
 {
     [Header("UI References")]
-    // 上段：投球ごとのテキストリスト
+    // 投球ごとのテキストリスト
     [SerializeField] private List<TMP_Text> rollBoxTexts;
 
-    // 下段：各フレームの累積スコア
+    // 各フレームの累積スコア
     [SerializeField] private List<TMP_Text> totalScoreTexts;
 
     [SerializeField] private BowlingPinManager pinManager;
@@ -22,10 +22,10 @@ public class BowlingUIManager : MonoBehaviour
         int rollIndex = 0; // データのインデックス
         int boxIndex = 0;  // UIテキスト(Box)のインデックス
 
-        // 1〜totalFramesフレームのループ
+        // 1～totalFramesフレームのループ
         for (int f = 1; f <= totalFrames; f++)
         {
-            // UIが不足している場合は処理を停止
+            // UIが足りている場合は終了
             if (f <= totalFrames - 1) // 通常フレーム
             {
                 if (boxIndex + 1 >= rollBoxTexts.Count) break;
@@ -35,8 +35,8 @@ public class BowlingUIManager : MonoBehaviour
                 if (boxIndex + 2 >= rollBoxTexts.Count) break;
             }
 
-            // --- 上段 (History / Box) の更新 ---
-            if (f < totalFrames) // 通常フレーム (Boxは2つ)
+            // --- 投球履歴 (History / Box) の更新 ---
+            if (f < totalFrames) // 通常フレーム (Box数は2つ)
             {
                 TMP_Text text1 = rollBoxTexts[boxIndex];
                 TMP_Text text2 = rollBoxTexts[boxIndex + 1];
@@ -76,7 +76,7 @@ public class BowlingUIManager : MonoBehaviour
                     }
                 }
             }
-            else // 最終フレーム (Boxは末尾の3つを使用)
+            else // 最終フレーム (Box数は最大3つ使用)
             {
                 // rollBoxTextsの末尾3つを使用
                 int lastBoxIndex = rollBoxTexts.Count - 1;
@@ -87,7 +87,7 @@ public class BowlingUIManager : MonoBehaviour
                 // 最終フレームの投球数を計算（rollsの末尾から最大3つ）
                 int finalFrameRollCount = Mathf.Min(rolls.Count - rollIndex, 3);
 
-                // 1つ目のBox
+                // 1投目のBox
                 if (finalFrameRollCount >= 1)
                 {
                     int r1 = rolls[rollIndex];
@@ -95,7 +95,7 @@ public class BowlingUIManager : MonoBehaviour
                 }
                 else text1.text = "";
 
-                // 2つ目のBox
+                // 2投目のBox
                 if (finalFrameRollCount >= 2)
                 {
                     int r1 = rolls[rollIndex];
@@ -110,7 +110,7 @@ public class BowlingUIManager : MonoBehaviour
                 }
                 else text2.text = "";
 
-                // 3つ目のBox
+                // 3投目のBox
                 if (finalFrameRollCount >= 3)
                 {
                     int r2 = rolls[rollIndex + 1];
@@ -126,7 +126,7 @@ public class BowlingUIManager : MonoBehaviour
                 else text3.text = "";
             }
 
-            // --- 下段 (Total Score) の更新 ---
+            // --- 累積スコア (Total Score) の更新 ---
             if (f == totalFrames) // 最終フレームは末尾を参照
             {
                 int lastIndex = totalScoreTexts.Count - 1;

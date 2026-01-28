@@ -1,11 +1,11 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using unityroom.Api;
 
 // ゲーム全体の進行管理クラス
-// Managerに状況判断を委譲し、返ってきた指示に従ってピンや車を操作する
+// Managerに状況を判断させ、返ってくる指示に従ってピンを操作する
 public class BowlingGameDirector : MonoBehaviour
 {
     [Header("Manager References")]
@@ -40,11 +40,11 @@ public class BowlingGameDirector : MonoBehaviour
         carStartPos = car.position;
         carStartRot = car.rotation;
 
-        // ゲーム開始時もセットアップを行う（物理を止めて発射待ちにする）
+        // ゲーム開始時のセットアップを行う（車を止めて発射待ちにする）
         ResetCar();
         SpaceKeyGuideUI.SetActive(true);
 
-        // ゲーム開始前は全てのSubCameraをオフにする（GameStart時にオンになる）
+        // ゲーム開始前はすべてのSubCameraをオフにする（GameStart時にオンになる）
         DeactivateAllSubCameras();
     }
 
@@ -74,7 +74,7 @@ public class BowlingGameDirector : MonoBehaviour
     }
 
     /// <summary>
-    /// 全てのSubCameraを非アクティブにする
+    /// すべてのSubCameraを非アクティブにする
     /// </summary>
     public void DeactivateAllSubCameras()
     {
@@ -89,10 +89,10 @@ public class BowlingGameDirector : MonoBehaviour
 
     void Update()
     {
-        // ゲーム終了時リセット
+        // ゲームオーバーチェック
         var status = scoreManager.CheckGameStatus();
         
-        // --- 発射待ちの処理 ---
+        // --- 発射待ちの状態 ---
         if (isReadyToThrow)
         {
             // スペースキーが押されたら発射
@@ -100,7 +100,7 @@ public class BowlingGameDirector : MonoBehaviour
             {
                 ShootCar();
             }
-            // 発射待ちの間は、これ以降の処理（ゴール判定など）を行わせない
+            // 発射待ちの間は、以降の処理（ゴールなど）を行わせない
             return;
         }
     }
@@ -108,7 +108,7 @@ public class BowlingGameDirector : MonoBehaviour
     private void ShootCar()
     {
         isReadyToThrow = false; // 待機状態解除
-        carRb.isKinematic = false; // 物理演算をオンにする（車が動き出す/重力が効く）
+        carRb.isKinematic = false; // 物理演算を有効にする（車が動き出す/重力が効く）
 
         SpaceKeyGuideUI.SetActive(false);
     }
@@ -117,17 +117,17 @@ public class BowlingGameDirector : MonoBehaviour
     {
         isJudging = true;
 
-        // 1. ピンが落ち着くのを待つ
+        // 1. ピンの安定を待つ
         yield return new WaitForSeconds(waitTimeSeconds);
 
         // 2. 倒れたピンを集計して記録
         List<GameObject> fallenPins = pinManager.CheckFallenPins();
         int fallenCount = fallenPins.Count;
 
-        Debug.Log($"倒れたピン: {fallenCount}本");
-        scoreManager.RecordThrow(fallenCount); // 記録＆UI更新
+        Debug.Log($"倒れたピン数: {fallenCount}本");
+        scoreManager.RecordThrow(fallenCount); // 記録とUI更新
 
-        // 3. Managerに「次どうすればいい？」と聞く (ここが重要)
+        // 3. Managerに「どうすればいい？」と問い合わせる (重要)
         var status = scoreManager.CheckGameStatus();
 
         if (status.IsGameOver)
@@ -153,7 +153,7 @@ public class BowlingGameDirector : MonoBehaviour
             switch (status.NextAction)
             {
                 case BowlingScoreManager.NextPinAction.ResetAll:
-                    // ステージを次に進める
+                    // 次のステージに進める
                     ChangeToNextStage();
 
                     pinManager.ResetAllPins();
@@ -170,7 +170,7 @@ public class BowlingGameDirector : MonoBehaviour
             // 4. 車をリセット
             ResetCar();
 
-            // カメラのオフセットもリセット
+            // カメラのオフセットをリセット
             if (cameraScript != null)
             {
                 cameraScript.ResetCameraOffset();
@@ -188,7 +188,7 @@ public class BowlingGameDirector : MonoBehaviour
     private void ChangeToNextStage()
     {
         if (stages.Count == 0) return;
-        //最後のステージの場合は何もしない
+        // 最後のステージの場合は何もしない
         if(currentStageIndex == stages.Count - 1) return;
         // 現在のステージを非アクティブにする
         stages[currentStageIndex].SetActive(false);
@@ -212,7 +212,7 @@ public class BowlingGameDirector : MonoBehaviour
             subCameras[currentStageIndex].SetActive(true);
         }
 
-        Debug.Log($"ステージを変更: Stage{currentStageIndex + 1}がアクティブになりました");
+        Debug.Log($"ステージ変更: Stage{currentStageIndex + 1}がアクティブになりました");
     }
 
     private void ResetCar()
@@ -221,14 +221,14 @@ public class BowlingGameDirector : MonoBehaviour
         car.position = carStartPos;
         car.rotation = carStartRot;
 
-        // 物理挙動を完全に止める
+        // 完全に止める
         carRb.velocity = Vector3.zero;
         carRb.angularVelocity = Vector3.zero;
 
-        //サイズをもとに戻す
+        // サイズを元に戻す
         car.transform.localScale = Vector3.one;
 
-        // KinematicをONにして、物理的に「固定」する ---
+        // KinematicをONにして、物理的に「固定」状態にする
         carRb.isKinematic = true;
 
         // 発射待ちフラグを立てる

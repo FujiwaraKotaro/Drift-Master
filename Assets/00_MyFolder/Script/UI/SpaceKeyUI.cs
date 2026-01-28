@@ -5,12 +5,12 @@ using UnityEngine;
 public class SpaceKeyUI : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private GameObject spaceKeyGuideUI; // SpaceKeyGuideUIƒIƒuƒWƒFƒNƒg
+    [SerializeField] private GameObject spaceKeyGuideUI; // SpaceKeyGuideUIã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
 
     [Header("References")]
-    [SerializeField] private BowlingGameDirector gameDirector; // BowlingGameDirector‚ÌQÆ
+    [SerializeField] private BowlingGameDirector gameDirector; // BowlingGameDirectorã¸ã®å‚ç…§
 
-    private bool lastReadyState = false; // ‘O‰ñ‚ÌisReadyToThrowó‘Ô‚ğ‹L˜^
+    private bool lastReadyState = false; // å‰å›ã®isReadyToThrowçŠ¶æ…‹ã‚’è¨˜éŒ²
 
     void Start()
     {
@@ -21,10 +21,10 @@ public class SpaceKeyUI : MonoBehaviour
     {
         if (gameDirector == null || spaceKeyGuideUI == null) return;
 
-        // isReadyToThrow‚Ìó‘Ô•Ï‰»‚ğŠÄ‹
+        // isReadyToThrowã®çŠ¶æ…‹ã‚’å–å¾—
         bool currentReadyState = GetIsReadyToThrow();
 
-        // ó‘Ô‚ª•Ï‰»‚µ‚½‚Ì‚İUI‚ğXV
+        // çŠ¶æ…‹ãŒå¤‰åŒ–ã—ãŸæ™‚ã®ã¿UIã‚’æ›´æ–°
         if (currentReadyState != lastReadyState)
         {
             spaceKeyGuideUI.SetActive(currentReadyState);
@@ -32,28 +32,28 @@ public class SpaceKeyUI : MonoBehaviour
         }
     }
 
-    // isReadyToThrow‚Ìó‘Ô‚ğæ“¾
+    // isReadyToThrowã®çŠ¶æ…‹ã‚’å–å¾—
     private bool GetIsReadyToThrow()
     {
-        // BowlingGameDirector‚ÌisReadyToThrow‚ªprivate‚È‚Ì‚ÅA
-        // ˆÈ‰º‚ÌğŒ‚Å”»’è‚µ‚Ü‚·F
-        // 1. ƒQ[ƒ€‚ªŠJn‚³‚ê‚Ä‚¢‚é
-        // 2. ”»’è’†‚Å‚È‚¢
-        // 3. Ô‚ÌRigidbody‚ªkinematicó‘Ôi‘Ò‹@’†j
+        // BowlingGameDirectorã®isReadyToThrowã¯privateãªã®ã§ã€
+        // ä»¥ä¸‹ã®æ¡ä»¶ã§çŠ¶æ…‹ã‚’åˆ¤æ–­:
+        // 1. ã‚²ãƒ¼ãƒ ãŒé–‹å§‹ã•ã‚Œã¦ã„ã‚‹
+        // 2. åˆ¤å®šä¸­ã§ãªã„
+        // 3. è»Šã®RigidbodyãŒkinematicçŠ¶æ…‹ï¼ˆç™ºå°„å¾…ã¡ï¼‰
 
         if (!GameStart.gameStarted || gameDirector.isJudging)
         {
             return false;
         }
 
-        // Ô‚ÌRigidbody‚ğæ“¾‚µ‚Äó‘ÔŠm”F
+        // è»Šã®Rigidbodyã®çŠ¶æ…‹ã‚’ç¢ºèª
         Transform car = GetCarTransform();
         if (car != null)
         {
             Rigidbody carRb = car.GetComponent<Rigidbody>();
             if (carRb != null)
             {
-                // kinematicó‘Ô‚©‚Â”»’è’†‚Å‚È‚¯‚ê‚Î”­Ë‘Ò‚¿ó‘Ô
+                // kinematicã§åˆ¤å®šä¸­ã§ãªã‘ã‚Œã°ã€ç™ºå°„å¾…ã¡çŠ¶æ…‹
                 return carRb.isKinematic && !gameDirector.isJudging;
             }
         }
@@ -61,10 +61,10 @@ public class SpaceKeyUI : MonoBehaviour
         return false;
     }
 
-    // Ô‚ÌTransform‚ğæ“¾iBowlingGameDirector‚©‚çj
+    // è»Šã®Transformã‚’å–å¾—ï¼ˆBowlingGameDirectorã‹ã‚‰ï¼‰
     private Transform GetCarTransform()
     {
-        // Reflection‚ğg‚Á‚ÄÔ‚ÌQÆ‚ğæ“¾
+        // Reflectionã‚’ä½¿ã‚ãšã«å‚ç…§ã‚’å–å¾—
         var carField = typeof(BowlingGameDirector).GetField("car",
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
@@ -76,7 +76,7 @@ public class SpaceKeyUI : MonoBehaviour
         return null;
     }
 
-    // è“®‚ÅUI‚Ì•\¦/”ñ•\¦‚ğØ‚è‘Ö‚¦‚éƒƒ\ƒbƒhiƒfƒoƒbƒO—pj
+    // å¤–éƒ¨ã‹ã‚‰UIã®è¡¨ç¤º/éè¡¨ç¤ºã‚’åˆ¶å¾¡ã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ï¼ˆãƒ‡ãƒãƒƒã‚°ç”¨ï¼‰
     public void SetSpaceKeyGuideVisible(bool visible)
     {
         if (spaceKeyGuideUI != null)

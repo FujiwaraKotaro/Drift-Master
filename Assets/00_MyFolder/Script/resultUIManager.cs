@@ -5,7 +5,7 @@ using DG.Tweening;
 
 public class resultUIManager: MonoBehaviour
 {
-    [SerializeField] private Vector2 centerPosition = Vector2.zero; // 画面中央座標
+    [SerializeField] private Vector2 centerPosition = Vector2.zero; // 中央座標
     [SerializeField] private Vector2 enlargedSize = new Vector2(600, 400); // 拡大後のサイズ
     [SerializeField] private float duration = 2.0f; // アニメーション時間
     [SerializeField] private GameObject scoreBoard;
@@ -34,7 +34,7 @@ public class resultUIManager: MonoBehaviour
 
         // 位置を中央に移動
         rectTransform.DOAnchorPos(centerPosition, duration).SetEase(Ease.OutCubic);
-        // サイズを大きく
+        // サイズを大きくする
         rectTransform.DOSizeDelta(enlargedSize, duration).SetEase(Ease.OutCubic);
         resultUI.SetActive(true);
     }

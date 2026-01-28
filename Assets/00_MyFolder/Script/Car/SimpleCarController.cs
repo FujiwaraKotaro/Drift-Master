@@ -17,8 +17,8 @@ public class SimpleCarController : MonoBehaviour
     public float maxMotorTorque;
     public float maxSteeringAngle;
 
-    // 対応する視覚的なホイールを見つけます
-    // Transform を正しく適用します
+    // 蟇ｾ蠢懊☆繧玖ｦ冶ｦ夂噪縺ｪ繝帙う繝ｼ繝ｫ繧定ｦ九▽縺代※
+    // Transform縺ｫ縺昴�ｮ蜀�螳ｹ繧帝←逕ｨ縺吶ｋ
     public void ApplyLocalPositionToVisuals(WheelCollider collider)
     {
         if (collider.transform.childCount == 0)

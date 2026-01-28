@@ -8,7 +8,7 @@ public class ArcadeCarController : MonoBehaviour
     public float maxSpeed = 30f;
     [Tooltip("加速力")]
     public float acceleration = 50f;
-    [Tooltip("旋回性能（高いほど急に曲がる）")]
+    [Tooltip("旋回性能（大きいほど急に曲がる）")]
     public float baseTurnSpeed = 100f; // 基本旋回速度
 
     [Header("速度別旋回設定")]
@@ -17,8 +17,8 @@ public class ArcadeCarController : MonoBehaviour
     [Tooltip("350km/h以上時の旋回速度")]
     public float turnSpeedAt350kmh = 100f;
 
-    [Header("重心調整")]
-    [Tooltip("転倒防止のため重心を下げるオフセット値")]
+    [Header("重心設定")]
+    [Tooltip("転倒防止のため重心オフセット値")]
     public float centerOfMassOffset = -1.0f;
 
     [Header("Wall衝突設定")]
@@ -60,13 +60,13 @@ public class ArcadeCarController : MonoBehaviour
         moveInput = 1.0f;
         turnInput = Input.GetAxis("Horizontal"); // A/D または 矢印左右
 
-        // 速度に応じた旋回速度を計算
+        // 速度に応じて旋回速度を計算
         UpdateTurnSpeed();
     }
 
     void FixedUpdate()
     {
-        if (CheckGround()　&& !rb.isKinematic) // 【追加】もし地面についていたら...
+        if (CheckGround()　&& !rb.isKinematic) // 地面にいるときのみ...
         {
             Move();      // 走る
             Turn();      // 曲がる
@@ -101,14 +101,14 @@ public class ArcadeCarController : MonoBehaviour
     // 1. 自動前進
     void Move()
     {
-        // 最高速度以下なら加速力を加える
+        // 最高速度以下なら力を加える
         if (rb.velocity.magnitude < maxSpeed)
         {
             rb.AddForce(transform.forward * moveInput * acceleration, ForceMode.Acceleration);
         }
     }
 
-    // 2. 旋回（物理演算ではなく回転を直接操作）
+    // 2. 旋回（力ではなく回転を直接操作）
     void Turn()
     {
         // 停止中は回らないようにする（少し動いていれば回れる）
@@ -140,6 +140,11 @@ public class ArcadeCarController : MonoBehaviour
         return Physics.Raycast(transform.position, -transform.up, rayLength * transform.localScale.x, groundLayer);
     }
 
+
+
+
+
+    // 以下現在は使用していない
     // Wall衝突時の処理
     private void OnTriggerEnter(Collider other)
     {
@@ -179,13 +184,13 @@ public class ArcadeCarController : MonoBehaviour
             wallDirection = -wallRightDirection;
         }
 
-        // 壁と並行になる回転を計算
+        // 壁と平行になる回転を計算
         Quaternion targetRotation = Quaternion.LookRotation(wallDirection);
 
-        // 即座に回転を適用（滑らかにしたい場合はLerpを使用）
+        // 即座に回転を適用（滑らかにする場合はLerpを使用）
         transform.rotation = targetRotation;
 
-        // 速度を壁と並行な方向に向け直し、速度は維持
+        // 速度を壁と平行な方向に向け、速度は維持
         rb.velocity = wallDirection * currentSpeed;
 
         Debug.Log($"Wall trigger detected! Aligned with wall direction: {wallDirection}");

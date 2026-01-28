@@ -1,28 +1,25 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+using TMPro;
 
-// ロジック担当：スコア計算とゲーム状態の管理
-// 「現在何フレーム目か？」「次はピンをリセットすべきか？」をすべて履歴(rolls)から都度計算する
 public class BowlingScoreManager : MonoBehaviour
 {
-    [Header("Game Settings")]
-    [SerializeField] private int totalFrames = 5; // フレーム数を可変にする
+    [SerializeField] private int totalFrames = 10;
     public int TotalFrames => totalFrames;
 
     [SerializeField] private BowlingUIManager uiManager;
     [SerializeField] private BowlingPinManager pinManager;
 
-    // 唯一の「正解」データ (Single Source of Truth)
+    // 内部の「投球」データ (Single Source of Truth)
     private List<int> rolls = new List<int>();
     public List<int> Rolls => rolls;
 
     // Directorに「次にピンをどう操作すべきか」を伝えるための列挙型
     public enum NextPinAction
     {
-        None,           // 何もしない（ゲーム終了時など）
-        ResetAll,       // 全ピンを復活させる（フレーム開始時、ストライク後など）
-        RemoveFallen    // 倒れたピンだけ除く（2投目の前など）
+        None,           // 何もしない（ゲームオーバーなど）
+        ResetAll,       // 全ピンを復活（フレーム開始、ストライクなど）
+        RemoveFallen    // 倒れたピンを除去（2投目の前など）
     }
 
     // ゲームの状態を返す構造体
@@ -38,9 +35,9 @@ public class BowlingScoreManager : MonoBehaviour
     {
         rolls.Add(pinsDown);
 
-        Debug.Log($"投球記録: ピン={pinsDown}");
+        Debug.Log($"記録: ピン数={pinsDown}");
 
-        uiManager.UpdateScoreBoard(this); // データ更新したら即UI反映
+        uiManager.UpdateScoreBoard(this); // データ更新後すぐにUIを反映
     }
 
     // フレーム数を動的に設定するメソッド
@@ -49,19 +46,19 @@ public class BowlingScoreManager : MonoBehaviour
         if (frames > 0)
         {
             totalFrames = frames;
-            Debug.Log($"総フレーム数を{frames}に変更しました");
+            Debug.Log($"フレーム数を{frames}に変更しました");
         }
     }
 
     // --- 計算ロジック ---
 
-    // 現在の履歴から「ゲームが終わっているか」「次はどうすべきか」を算出する
+    // 現在の状況から「ゲームオーバーかどうか」「次はどうすべきか」を算出
     public GameStatus CheckGameStatus()
     {
         int rollIndex = 0;
         int frame = 1;
 
-        // 1〜(最終フレーム-1)のシミュレーション
+        // 1～(最終フレーム-1)のシミュレーション
         for (; frame < totalFrames; frame++)
         {
             if (rollIndex >= rolls.Count)
@@ -82,7 +79,7 @@ public class BowlingScoreManager : MonoBehaviour
                 if (rollIndex + 1 >= rolls.Count)
                     return new GameStatus { IsGameOver = false, NextAction = NextPinAction.RemoveFallen };
 
-                rollIndex += 2; // 2投完了
+                rollIndex += 2; // 2投
             }
         }
 
@@ -94,7 +91,7 @@ public class BowlingScoreManager : MonoBehaviour
 
             int throwsInFinalFrame = rolls.Count - rollIndex;
 
-            // 1投目を投げた直後
+            // 1投目を投げた
             if (throwsInFinalFrame == 1)
             {
                 int first = rolls[rollIndex];
@@ -104,13 +101,13 @@ public class BowlingScoreManager : MonoBehaviour
                     NextAction = (first == pinManager.GetFrameMaxPinCount(frame-1)) ? NextPinAction.ResetAll : NextPinAction.RemoveFallen
                 };
             }
-            // 2投目を投げた直後
+            // 2投目を投げた
             else if (throwsInFinalFrame == 2)
             {
                 int first = rolls[rollIndex];
                 int second = rolls[rollIndex + 1];
 
-                // 終了判定: オープンフレームなら終了
+                // 終了条件: オープンフレームなら終了
                 if (first + second < pinManager.GetFrameMaxPinCount(frame-1) && first != pinManager.GetFrameMaxPinCount(frame-1))
                     return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
 
@@ -123,7 +120,7 @@ public class BowlingScoreManager : MonoBehaviour
 
                 return new GameStatus { IsGameOver = false, NextAction = NextPinAction.RemoveFallen };
             }
-            // 3投目を投げた直後
+            // 3投目を投げた
             else if (throwsInFinalFrame == 3)
             {
                 return new GameStatus { IsGameOver = true, NextAction = NextPinAction.None };
@@ -154,7 +151,7 @@ public class BowlingScoreManager : MonoBehaviour
                 int sum = 0;
                 int throws = 0;
 
-                // 最終フレームは全投球の合計
+                // 最終フレームは全ての投球の合計
                 for (int i = 0; rollIndex + i < rolls.Count && i < 3; i++)
                 {
                     sum += rolls[rollIndex + i];
